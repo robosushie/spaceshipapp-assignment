@@ -302,7 +302,7 @@ function PlotDialog({ charts }: { charts: QuestionChart[] }) {
           key={`${chart.title}-${index}`}
           type="button"
           variant="outline"
-          className="group relative h-auto w-full rounded-[1rem] p-2 [&_svg]:!h-20 [&_svg]:!w-full [&_svg]:!max-w-none"
+          className="group relative h-auto w-full max-w-56 self-start rounded-[1rem] p-2 [&_svg]:!h-16 [&_svg]:!w-full [&_svg]:!max-w-none"
           onClick={() => {
             setTab(`plot-${index}`)
             setOpen(true)
