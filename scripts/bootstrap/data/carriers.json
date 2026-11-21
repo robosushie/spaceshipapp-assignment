@@ -1,0 +1,29 @@
+[
+  {
+    "name": "DHL"
+  },
+  {
+    "name": "DPD"
+  },
+  {
+    "name": "FedEx"
+  },
+  {
+    "name": "GLS"
+  },
+  {
+    "name": "LaserShip"
+  },
+  {
+    "name": "OnTrac"
+  },
+  {
+    "name": "Royal Mail"
+  },
+  {
+    "name": "UPS"
+  },
+  {
+    "name": "USPS"
+  }
+]

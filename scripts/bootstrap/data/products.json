@@ -1,0 +1,1422 @@
+[
+  {
+    "sku": "BOOK-0006",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0008",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0010",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0016",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0017",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0026",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0032",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0040",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0060",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0066",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0070",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0072",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0086",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0087",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0090",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0094",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0107",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0110",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0115",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0117",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0118",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0123",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0139",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0142",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0147",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0149",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0151",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0155",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0158",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0161",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0164",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0170",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0172",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0177",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0196",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0199",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0205",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BOOK-0215",
+    "category": "BOOK"
+  },
+  {
+    "sku": "BRUSH-0007",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0009",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0014",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0018",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0024",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0027",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0028",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0029",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0030",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0034",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0037",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0040",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0055",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0060",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0066",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0068",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0071",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0075",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0076",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0078",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0082",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0084",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0085",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0086",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0093",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0098",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0104",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0109",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0112",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0117",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0121",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0129",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0138",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0139",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0142",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0150",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0151",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0153",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0159",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0162",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0169",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0181",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0188",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0212",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "BRUSH-0218",
+    "category": "BRUSH"
+  },
+  {
+    "sku": "CRAYON-0006",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0008",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0016",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0017",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0028",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0029",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0034",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0037",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0040",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0044",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0046",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0050",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0051",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0052",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0056",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0057",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0065",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0067",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0068",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0070",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0071",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0082",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0086",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0088",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0105",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0110",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0115",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0118",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0119",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0130",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0131",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0137",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0139",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0142",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0143",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0146",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0149",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0150",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0151",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0157",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0158",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0160",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0161",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0164",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0168",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0176",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0179",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0181",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0185",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0188",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0194",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0199",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0201",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0206",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0211",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0215",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0216",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "CRAYON-0219",
+    "category": "CRAYON"
+  },
+  {
+    "sku": "MARKER-0010",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0013",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0021",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0023",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0027",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0028",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0036",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0045",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0047",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0050",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0051",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0056",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0065",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0067",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0077",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0081",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0087",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0092",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0105",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0114",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0117",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0119",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0121",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0124",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0128",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0134",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0138",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0148",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0160",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0164",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0166",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0169",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0174",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0182",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0183",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0200",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0204",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0206",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0209",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0212",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0214",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0215",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0217",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0219",
+    "category": "MARKER"
+  },
+  {
+    "sku": "MARKER-0220",
+    "category": "MARKER"
+  },
+  {
+    "sku": "PAINT-0013",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0016",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0017",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0018",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0027",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0035",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0037",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0040",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0043",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0044",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0048",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0051",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0052",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0054",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0058",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0065",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0066",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0079",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0082",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0086",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0092",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0093",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0098",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0099",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0103",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0112",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0120",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0122",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0126",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0131",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0133",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0138",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0150",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0154",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0159",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0164",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0166",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0168",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0176",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0187",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0195",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0197",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0206",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0209",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAINT-0220",
+    "category": "PAINT"
+  },
+  {
+    "sku": "PAPER-0001",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0015",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0032",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0041",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0049",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0053",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0062",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0063",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0066",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0075",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0078",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0079",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0085",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0086",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0091",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0096",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0103",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0105",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0122",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0123",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0132",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0138",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0140",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0154",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0155",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0156",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0165",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0171",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0179",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0186",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0197",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0199",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0201",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0214",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0217",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0219",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PAPER-0220",
+    "category": "PAPER"
+  },
+  {
+    "sku": "PENCIL-0003",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0005",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0007",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0011",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0014",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0020",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0023",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0033",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0038",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0039",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0043",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0046",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0050",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0056",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0060",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0062",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0071",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0073",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0076",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0079",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0083",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0084",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0095",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0114",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0119",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0125",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0131",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0134",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0135",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0137",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0144",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0147",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0160",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0168",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0175",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0176",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0196",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0198",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0199",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0213",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "PENCIL-0220",
+    "category": "PENCIL"
+  },
+  {
+    "sku": "STICKER-0001",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0006",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0007",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0008",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0013",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0022",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0028",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0031",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0032",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0038",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0041",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0042",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0046",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0055",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0063",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0072",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0078",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0079",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0081",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0085",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0087",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0088",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0089",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0092",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0094",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0096",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0098",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0099",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0104",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0115",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0127",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0139",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0140",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0146",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0153",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0165",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0184",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0185",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0189",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0194",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0196",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0200",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0204",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0210",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0213",
+    "category": "STICKER"
+  },
+  {
+    "sku": "STICKER-0215",
+    "category": "STICKER"
+  }
+]

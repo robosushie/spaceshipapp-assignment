@@ -1,0 +1,22 @@
+{
+  "registryVersion": "2026.10.6",
+  "preset": null,
+  "agents": [],
+  "choices": {
+    "appType": "frontend-backend",
+    "frontend": "vite-react",
+    "frontendRuntime": "node",
+    "ui": "tailwind-shadcn",
+    "backend": "fastapi",
+    "package": "pnpm",
+    "layout": "apps-src",
+    "database": "postgres",
+    "dbProvider": "postgres-docker",
+    "orm": "sqlalchemy",
+    "aiFramework": "langgraph",
+    "testing": "vitest-playwright",
+    "cicd": "github-actions",
+    "containers": "docker"
+  },
+  "notes": ""
+}

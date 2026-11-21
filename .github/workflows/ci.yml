@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: spaceship
+          POSTGRES_PASSWORD: spaceship
+          POSTGRES_DB: spaceship
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U spaceship -d spaceship"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+      - run: uv sync --all-groups
+      - run: uv run ruff check src scripts tests alembic
+      - run: uv run ruff format --check src scripts tests alembic
+      - run: uv run mypy
+      - env:
+          DATABASE_URL: postgresql+psycopg://spaceship:spaceship@localhost:5432/spaceship
+          JWT_SECRET: 0123456789abcdef0123456789abcdef
+          JWT_ISSUER: spaceship
+          JWT_AUDIENCE: spaceship-web
+          COOKIE_SECURE: "false"
+        run: uv run pytest
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.16.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web typecheck
+      - run: pnpm --filter web test

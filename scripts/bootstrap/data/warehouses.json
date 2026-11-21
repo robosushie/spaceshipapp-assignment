@@ -1,0 +1,47 @@
+[
+  {
+    "code": "AMS-FC1",
+    "region": "EU",
+    "origin_city": "Amsterdam, NL"
+  },
+  {
+    "code": "ATL-DC1",
+    "region": "US-E",
+    "origin_city": "Atlanta, GA"
+  },
+  {
+    "code": "BER-FC1",
+    "region": "EU",
+    "origin_city": "Berlin, DE"
+  },
+  {
+    "code": "CHI-DC1",
+    "region": "US-C",
+    "origin_city": "Chicago, IL"
+  },
+  {
+    "code": "DFW-DC1",
+    "region": "US-C",
+    "origin_city": "Dallas, TX"
+  },
+  {
+    "code": "EWR-DC1",
+    "region": "US-E",
+    "origin_city": "Newark, NJ"
+  },
+  {
+    "code": "LAX-DC1",
+    "region": "US-W",
+    "origin_city": "Los Angeles, CA"
+  },
+  {
+    "code": "LON-FC1",
+    "region": "UK",
+    "origin_city": "London, UK"
+  },
+  {
+    "code": "SFO-DC2",
+    "region": "US-W",
+    "origin_city": "San Francisco, CA"
+  }
+]

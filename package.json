@@ -1,0 +1,16 @@
+{
+  "name": "spaceship",
+  "private": true,
+  "packageManager": "pnpm@10.16.1",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"uv run uvicorn src.main:app --reload --host 127.0.0.1 --port 8000\" \"pnpm --filter web dev\"",
+    "db:create": "docker compose --env-file .env -f infra/compose/docker-compose.yml up -d --wait",
+    "db:make": "uv run alembic revision --autogenerate -m",
+    "db:migrate": "uv run alembic upgrade head",
+    "db:seed": "uv run python scripts/bootstrap/run.py load",
+    "db:export": "uv run python scripts/bootstrap/run.py export"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

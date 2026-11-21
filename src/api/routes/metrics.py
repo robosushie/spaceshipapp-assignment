@@ -1,0 +1,12 @@
+from fastapi import APIRouter
+
+from src.api.deps import CurrentUser, SessionDep
+from src.schemas import MetricsResponse
+from src.services.metrics import get_metrics
+
+router = APIRouter(prefix="/metrics", tags=["metrics"])
+
+
+@router.get("", response_model=MetricsResponse)
+def read_metrics(session: SessionDep, _: CurrentUser) -> MetricsResponse:
+    return get_metrics(session)
