@@ -13,13 +13,10 @@ export function money(value: string): string {
 }
 
 export function statusColor(status: string): string {
-  if (status === "delivered") {
-    return "var(--arrived)"
+  if (status === "exception") {
+    return "var(--primary)"
   }
-  if (status === "delayed" || status === "exception") {
-    return "var(--delay)"
-  }
-  if (status === "canceled") {
+  if (status === "canceled" || status === "in_transit") {
     return "var(--muted-foreground)"
   }
   return "var(--foreground)"

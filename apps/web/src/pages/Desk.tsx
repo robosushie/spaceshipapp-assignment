@@ -141,23 +141,20 @@ function loadChatWidth(): number {
 
 function StatusBadge({ status }: { status: string }) {
   const tone =
-    status === "delivered"
-      ? "bg-arrived text-primary-foreground"
-      : status === "delayed"
-        ? "bg-delayed-wash text-foreground"
-        : status === "exception"
-          ? "bg-delay text-foreground"
-        : "bg-secondary text-foreground"
+    status === "exception"
+      ? "h-auto rounded-full border border-primary bg-transparent px-2.5 py-0.5 text-sm text-primary"
+      : status === "delivered"
+        ? "h-auto rounded-full border border-foreground bg-foreground px-2.5 py-0.5 text-sm text-background"
+        : "h-auto rounded-full border border-foreground bg-transparent px-2.5 py-0.5 text-sm text-foreground"
   return <Badge className={tone}>{statusLabel(status)}</Badge>
 }
 
 const PIE_FILLS = [
   "var(--foreground)",
-  "var(--arrived)",
-  "var(--delay)",
-  "var(--delayed-wash)",
+  "var(--primary)",
   "var(--muted-foreground)",
-  "var(--secondary)",
+  "var(--muted)",
+  "var(--foreground)",
 ]
 
 function Plot({ chart, className }: { chart: QuestionChart; className?: string }) {
@@ -609,29 +606,29 @@ export function Desk() {
     <div className="flex h-svh overflow-hidden">
       <nav
         aria-label="Desk"
-        className="flex h-full w-14 shrink-0 flex-col items-center gap-1 border-e bg-card py-3"
+        className="flex h-full w-16 shrink-0 flex-col items-center gap-1 border-e bg-card py-3"
       >
-        <div className="mb-3 flex size-9 items-center justify-center text-foreground">
-          <RocketIcon className="size-5" aria-hidden />
+        <div className="mb-3 flex size-10 items-center justify-center text-foreground">
+          <RocketIcon className="size-6" aria-hidden />
           <span className="sr-only">Spaceship</span>
         </div>
-        <Button variant="secondary" size="icon" asChild>
-          <Link to="/dashboard" aria-label="Dashboard" aria-current="page">
-            <LayoutDashboardIcon />
+        <Button variant="ghost" size="icon-lg" asChild>
+          <Link to="/dashboard" aria-label="Dashboard" aria-current="page" className="text-primary">
+            <LayoutDashboardIcon className="size-5" />
           </Link>
         </Button>
         <div className="mt-auto flex flex-col items-center gap-1">
-          <Button variant="ghost" size="icon" type="button" aria-label="Settings">
-            <SettingsIcon />
+          <Button variant="ghost" size="icon-lg" type="button" aria-label="Settings">
+            <SettingsIcon className="size-5" />
           </Button>
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-lg"
             type="button"
             aria-label="Sign out"
             onClick={() => void signOut()}
           >
-            <LogOutIcon />
+            <LogOutIcon className="size-5" />
           </Button>
         </div>
       </nav>
@@ -639,7 +636,7 @@ export function Desk() {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-8 overflow-y-auto px-6 py-8">
         <header>
-          <h1 className="text-3xl font-bold">Spaceship</h1>
+          <h1 className="text-xl">Spaceship</h1>
         </header>
 
         {loadError ? <p role="alert">{loadError}</p> : null}
@@ -663,7 +660,6 @@ export function Desk() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() =>
                 setFilters((current) => [
                   ...current,
@@ -684,7 +680,7 @@ export function Desk() {
             </Empty>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="text-sm">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Order</TableHead>
@@ -759,7 +755,7 @@ export function Desk() {
       </main>
 
       <aside
-        className="relative flex h-72 w-full shrink-0 flex-col border-t bg-card lg:h-full lg:w-(--chat-width) lg:max-w-none lg:border-s lg:border-t-0"
+        className="relative flex h-72 w-full shrink-0 flex-col border-t bg-card text-base lg:h-full lg:w-(--chat-width) lg:max-w-none lg:border-s lg:border-t-0"
         style={{ "--chat-width": `${chatWidth}px` } as CSSProperties}
       >
         <div
@@ -833,7 +829,7 @@ export function Desk() {
                             align={message.role === "user" ? "end" : "start"}
                             className="max-w-[85%]"
                           >
-                            <BubbleContent className="rounded-[1.25rem] px-4 py-2.5">
+                            <BubbleContent className="rounded-2xl px-3 py-2 text-sm">
                               {message.text}
                             </BubbleContent>
                           </Bubble>
@@ -875,7 +871,7 @@ export function Desk() {
                   event.currentTarget.form?.requestSubmit()
                 }
               }}
-              className="block min-h-24 w-full resize-none rounded-[12px] border border-input bg-transparent px-3 py-2.5 pr-12 pb-10 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="block min-h-24 w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2.5 pr-12 pb-10 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             />
             <Button
               type="submit"
@@ -883,7 +879,7 @@ export function Desk() {
               size="icon"
               aria-label="Send"
               disabled={askingThreadId !== null || question.trim().length === 0}
-              className="absolute right-2 bottom-2 bg-transparent hover:bg-transparent"
+              className="absolute right-2 bottom-2 bg-transparent text-primary hover:bg-transparent"
             >
               <SendIcon />
             </Button>
@@ -1019,7 +1015,7 @@ function FilterRow({
       ) : (
         <input
           aria-label="Filter value"
-          className="h-8 w-36 rounded-[2px] border border-input bg-transparent px-2 text-sm"
+          className="h-8 w-36 rounded-lg border border-input bg-transparent px-2 text-sm"
           type={kind === "date" ? "date" : "text"}
           inputMode={kind === "number" ? "decimal" : undefined}
           value={filter.value}
