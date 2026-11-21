@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     jwt_issuer: str = "spaceship"
     jwt_audience: str = "spaceship-web"
     anthropic_api_key: str = ""
+    openai_api_key: str = ""
     cors_origins: str = "http://localhost:5173"
     cookie_secure: bool = False
     access_token_minutes: int = 15

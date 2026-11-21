@@ -16,6 +16,7 @@ All versioned routes are mounted once under `/v1`. Route modules do not repeat `
 | `GET /v1/orders/{order_id}` | Bearer | One order. |
 | `GET /v1/metrics` | Bearer | Totals for the desk charts. |
 | `POST /v1/questions` | Bearer | Ask one question about the book. |
+| `POST /v1/chat-titles` | Bearer | A short tab title from the first question, written by gpt-5-nano. |
 
 `GET /health` and `POST /v1/auth/login` are the only routes with `security: []` besides refresh and logout, which authenticate with the cookie rather than the bearer token.
 

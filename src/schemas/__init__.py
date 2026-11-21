@@ -83,6 +83,14 @@ class QuestionRequest(BaseModel):
     question: str = Field(min_length=1, max_length=500)
 
 
+class ChatTitleRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=500)
+
+
+class ChatTitleResponse(BaseModel):
+    title: str
+
+
 class QuestionChart(BaseModel):
     type: Literal["bar", "line", "area", "pie", "scatter"]
     title: str

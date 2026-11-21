@@ -370,6 +370,7 @@ export function Desk() {
   const [chatWidth, setChatWidth] = useState(loadChatWidth)
   const activeTabRef = useRef<HTMLDivElement>(null)
   const chatDrag = useRef<{ startX: number; startWidth: number } | null>(null)
+  const titling = useRef(new Set<string>())
   const activeThread = desk.threads.find((thread) => thread.id === desk.activeId) ?? desk.threads[0]
   const messages = activeThread?.messages ?? []
 
@@ -467,6 +468,37 @@ export function Desk() {
   useEffect(() => {
     activeTabRef.current?.scrollIntoView({ inline: "nearest", block: "nearest" })
   }, [desk.activeId])
+
+  useEffect(() => {
+    for (const thread of desk.threads) {
+      const first = thread.messages.find((message) => message.role === "user")
+      if (!first || thread.title !== first.text || titling.current.has(thread.id)) {
+        continue
+      }
+      titling.current.add(thread.id)
+      const threadId = thread.id
+      void api<{ title: string }>("/v1/chat-titles", {
+        method: "POST",
+        body: JSON.stringify({ message: first.text }),
+      })
+        .then((result) => {
+          const title = result.title.trim()
+          if (!title) {
+            titling.current.delete(threadId)
+            return
+          }
+          setDesk((current) => ({
+            ...current,
+            threads: current.threads.map((item) =>
+              item.id === threadId ? { ...item, title } : item,
+            ),
+          }))
+        })
+        .catch(() => {
+          titling.current.delete(threadId)
+        })
+    }
+  }, [desk.threads])
 
   function appendMessage(threadId: string, message: ChatMessage, title?: string) {
     setDesk((current) => ({
