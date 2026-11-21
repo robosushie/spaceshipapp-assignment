@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Ref } from "react"
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type Ref } from "react"
 import { LayoutDashboardIcon, LogOutIcon, PlusIcon, RocketIcon, SendIcon, SettingsIcon, XIcon } from "lucide-react"
 import { Link } from "react-router"
 import {
@@ -72,9 +72,29 @@ import { cn } from "@/lib/utils"
 import type { Metrics, OrderPage, QuestionChart, QuestionResult } from "@/types/desk"
 
 const PAGE = 40
+const CHAT_WIDTH_KEY = "spaceship-chat-width"
+const CHAT_DEFAULT = 320
+const CHAT_MIN = 220
+const CHAT_MAX = 720
 const STATUSES = ["delivered", "delayed", "in_transit", "exception", "canceled"]
 const REGIONS = ["UK", "EU", "US-E", "US-C", "US-W"]
 const CARRIERS = ["DHL", "DPD", "FedEx", "GLS", "LaserShip", "OnTrac", "Royal Mail", "UPS", "USPS"]
+
+function clampChatWidth(value: number, viewport: number): number {
+  const max = Math.min(CHAT_MAX, Math.round(viewport * 0.7))
+  return Math.min(Math.max(value, CHAT_MIN), Math.max(max, CHAT_MIN))
+}
+
+function loadChatWidth(): number {
+  if (typeof localStorage === "undefined") {
+    return CHAT_DEFAULT
+  }
+  const stored = Number(localStorage.getItem(CHAT_WIDTH_KEY))
+  if (!Number.isFinite(stored)) {
+    return CHAT_DEFAULT
+  }
+  return clampChatWidth(stored, window.innerWidth)
+}
 
 function StatusBadge({ status }: { status: string }) {
   const tone =
@@ -337,7 +357,9 @@ export function Desk() {
   const [question, setQuestion] = useState("")
   const [askingThreadId, setAskingThreadId] = useState<string | null>(null)
   const [desk, setDesk] = useState<ChatDesk>(loadChats)
+  const [chatWidth, setChatWidth] = useState(loadChatWidth)
   const activeTabRef = useRef<HTMLDivElement>(null)
+  const chatDrag = useRef<{ startX: number; startWidth: number } | null>(null)
   const activeThread = desk.threads.find((thread) => thread.id === desk.activeId) ?? desk.threads[0]
   const messages = activeThread?.messages ?? []
 
@@ -391,6 +413,46 @@ export function Desk() {
   useEffect(() => {
     saveChats(desk)
   }, [desk])
+
+  useEffect(() => {
+    localStorage.setItem(CHAT_WIDTH_KEY, String(chatWidth))
+  }, [chatWidth])
+
+  function onResizePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) {
+      return
+    }
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    chatDrag.current = { startX: event.clientX, startWidth: chatWidth }
+  }
+
+  function onResizePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const session = chatDrag.current
+    if (!session) {
+      return
+    }
+    setChatWidth(clampChatWidth(session.startWidth + (session.startX - event.clientX), window.innerWidth))
+  }
+
+  function onResizePointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    chatDrag.current = null
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  function onResizeKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const step = event.shiftKey ? 48 : 16
+    if (event.key === "ArrowLeft") {
+      event.preventDefault()
+      setChatWidth((current) => clampChatWidth(current + step, window.innerWidth))
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault()
+      setChatWidth((current) => clampChatWidth(current - step, window.innerWidth))
+    }
+  }
 
   useEffect(() => {
     activeTabRef.current?.scrollIntoView({ inline: "nearest", block: "nearest" })
@@ -647,7 +709,25 @@ export function Desk() {
         </section>
       </main>
 
-      <aside className="flex h-72 w-full shrink-0 flex-col border-t bg-card lg:h-full lg:w-80 lg:border-s lg:border-t-0">
+      <aside
+        className="relative flex h-72 w-full shrink-0 flex-col border-t bg-card lg:h-full lg:w-(--chat-width) lg:max-w-none lg:border-s lg:border-t-0"
+        style={{ "--chat-width": `${chatWidth}px` } as CSSProperties}
+      >
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize chat"
+          aria-valuemin={CHAT_MIN}
+          aria-valuemax={CHAT_MAX}
+          aria-valuenow={Math.round(chatWidth)}
+          tabIndex={0}
+          className="absolute inset-y-0 left-0 z-10 hidden w-2 -translate-x-1/2 cursor-col-resize touch-none lg:block hover:bg-foreground/15 focus-visible:bg-foreground/20"
+          onPointerDown={onResizePointerDown}
+          onPointerMove={onResizePointerMove}
+          onPointerUp={onResizePointerUp}
+          onPointerCancel={onResizePointerUp}
+          onKeyDown={onResizeKeyDown}
+        />
         <div className="flex shrink-0 items-end border-b border-border bg-background pt-1.5">
           <div
             role="tablist"
