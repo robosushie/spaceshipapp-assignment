@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.routes import auth, health, metrics, orders, questions, titles
+from src.api.routes import auth, health, invites, me, metrics, orders, questions, titles
 from src.lib.config import get_settings
 from src.lib.problems import FieldError, pointer_from_loc, problem
 
@@ -65,6 +65,8 @@ async def unhandled_exception_handler(request: Request, _exc: Exception) -> JSON
 
 app.include_router(health.router)
 app.include_router(auth.router, prefix="/v1")
+app.include_router(me.router, prefix="/v1")
+app.include_router(invites.router, prefix="/v1")
 app.include_router(orders.router, prefix="/v1")
 app.include_router(metrics.router, prefix="/v1")
 app.include_router(questions.router, prefix="/v1")

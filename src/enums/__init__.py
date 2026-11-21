@@ -10,5 +10,5 @@ class OrderStatus(StrEnum):
 
 
 class UserRole(StrEnum):
-    analyst = "analyst"
+    member = "member"
     admin = "admin"

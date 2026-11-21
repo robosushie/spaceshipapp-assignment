@@ -13,6 +13,7 @@ dependencies = [
     "pwdlib[argon2]>=0.4.2",
     "pydantic-settings>=2.16.3",
     "pyjwt>=2.15.1",
+    "resend>=2.55.0",
     "sqlglot>=30.33.0",
     "sqlmodel>=0.0.50",
     "uvicorn[standard]>=0.54.0",
@@ -52,7 +53,7 @@ warn_redundant_casts = true
 no_implicit_optional = true
 
 [[tool.mypy.overrides]]
-module = ["baml_py", "baml_py.*", "langgraph.*", "langchain_core.*"]
+module = ["baml_py", "baml_py.*", "langgraph.*", "langchain_core.*", "resend", "resend.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

@@ -104,7 +104,9 @@ def _upsert_admin(session: Session) -> None:
     user = session.exec(select(User).where(User.email == normalized)).first()
     password_hash = hash_password(password)
     if user is None:
-        session.add(User(email=normalized, password_hash=password_hash, role=UserRole.admin))
+        session.add(
+            User(email=normalized, name="Admin", password_hash=password_hash, role=UserRole.admin)
+        )
     else:
         user.password_hash = password_hash
         user.role = UserRole.admin

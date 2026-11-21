@@ -9,13 +9,19 @@ from src.lib.security import hash_password
 from src.models import Carrier, Client, Order, Product, User, Warehouse
 
 
-def add_user(email: str = "analyst@spaceship.local", password: str = "correct-password") -> None:
+def add_user(
+    email: str = "analyst@spaceship.local",
+    password: str = "correct-password",
+    role: UserRole = UserRole.member,
+    name: str = "Analyst",
+) -> None:
     with Session(engine) as session:
         session.add(
             User(
                 email=email,
                 password_hash=hash_password(password),
-                role=UserRole.analyst,
+                name=name,
+                role=role,
             )
         )
         session.commit()

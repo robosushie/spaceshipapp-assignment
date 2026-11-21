@@ -75,7 +75,7 @@ Natural keys from the file are the primary keys. Nothing in the book is a surrog
 - `carriers.name`
 - `products.sku`, plus `category`
 - `orders.order_id`, foreign keys to those four, plus destination city, status, dates, quantity, unit price, order value, promo flag, promo percent
-- `users` — email, argon2 password hash, role `analyst` or `admin`
+- `users` — email, name, argon2 password hash, role `member` or `admin`, optional invite token hash and expiry
 - `refresh_tokens` — sha256 hash of the token, expiry, `revoked_at`, user id
 
 `orders.region` is not stored. Region is a property of the warehouse, and every query that filters by region joins `warehouses`. That matches the file: no warehouse spans two regions.

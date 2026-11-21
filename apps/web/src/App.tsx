@@ -3,8 +3,10 @@ import { Navigate, Route, Routes } from "react-router"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/lib/auth"
+import { AcceptInvite } from "@/pages/AcceptInvite"
 import { Desk } from "@/pages/Desk"
 import { Login } from "@/pages/Login"
+import { Settings } from "@/pages/Settings"
 
 function Gate({ children }: { children: ReactNode }) {
   const { ready, signedIn } = useAuth()
@@ -26,12 +28,21 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route
         path="/dashboard"
         element={
           <Gate>
             <Desk />
+          </Gate>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <Gate>
+            <Settings />
           </Gate>
         }
       />

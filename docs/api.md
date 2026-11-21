@@ -12,13 +12,18 @@ All versioned routes are mounted once under `/v1`. Route modules do not repeat `
 | `POST /v1/auth/login` | Public | Exchange email and password for an access token. Sets the refresh cookie. |
 | `POST /v1/auth/refresh` | Refresh cookie | Rotate the refresh token and return a new access token. |
 | `POST /v1/auth/logout` | Refresh cookie | Revoke the refresh token and clear the cookie. |
+| `GET /v1/me` | Bearer | The signed-in person: id, email, name, role. |
+| `POST /v1/me` | Bearer | Update own name and role (`admin` or `member`). |
+| `POST /v1/me/password` | Bearer | Change password. Wrong current password is 401. |
+| `POST /v1/invites` | Bearer, admin | Email a set-password link. A member is 403. A duplicate email is 409. |
+| `POST /v1/invites/accept` | Public | Set a password from the invite token and clear it. |
 | `GET /v1/orders` | Bearer | Page of orders. |
 | `GET /v1/orders/{order_id}` | Bearer | One order. |
 | `GET /v1/metrics` | Bearer | Totals for the desk charts. |
 | `POST /v1/questions` | Bearer | Ask one question about the book. |
 | `POST /v1/chat-titles` | Bearer | A short tab title from the first question, written by gpt-5-nano. |
 
-`GET /health` and `POST /v1/auth/login` are the only routes with `security: []` besides refresh and logout, which authenticate with the cookie rather than the bearer token.
+`GET /health`, `POST /v1/auth/login`, and `POST /v1/invites/accept` are public. Refresh and logout authenticate with the cookie rather than the bearer token.
 
 ## Orders
 
@@ -140,6 +145,28 @@ The refresh token is not in the JSON. It is `Set-Cookie` on `refresh_token`. See
 Refresh and logout take no body. Refresh returns the same access-token object. Logout returns 204 and an empty body.
 
 Authenticated routes expect `Authorization: Bearer <access_token>`. A missing or invalid token is 401. A well-formed token for a deleted user is 401.
+
+Profile update:
+
+```json
+{ "name": "Ada", "role": "admin" }
+```
+
+Password change takes `current_password` and `new_password` (at least 8 characters) and returns 204.
+
+Invite:
+
+```json
+{ "name": "Grace", "email": "grace@example.com", "role": "member" }
+```
+
+Success is 201 with `{ "email": "grace@example.com" }`. The token is only in the email. Accept invite is public:
+
+```json
+{ "token": "<from the email>", "password": "a-new-password" }
+```
+
+Success is 204. An unknown or expired token is 404. Invites need `RESEND_API_KEY`. Without it, or if Resend rejects the message, the status is 503 and no account is kept. `RESEND_FROM` defaults to `onboarding@resend.dev`, which only delivers to the Resend account address until a domain is verified. `WEB_ORIGIN` builds the link.
 
 ## Errors
 

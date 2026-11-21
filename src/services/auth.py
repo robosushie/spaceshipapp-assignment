@@ -28,7 +28,7 @@ def authenticate(session: Session, email: str, password: str) -> User:
     if user is None:
         verify_password_dummy(password)
         raise HTTPException(status_code=401, detail=_LOGIN_DETAIL)
-    if not verify_password(password, user.password_hash):
+    if user.invite_token_hash is not None or not verify_password(password, user.password_hash):
         raise HTTPException(status_code=401, detail=_LOGIN_DETAIL)
     return user
 

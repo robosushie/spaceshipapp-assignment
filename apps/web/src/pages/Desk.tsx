@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type Ref } from "react"
-import { ChevronLeftIcon, ChevronRightIcon, FunnelIcon, LayoutDashboardIcon, LogOutIcon, PlusIcon, RocketIcon, SendIcon, SettingsIcon, XIcon } from "lucide-react"
-import { Link } from "react-router"
+import { ChevronLeftIcon, ChevronRightIcon, FunnelIcon, PlusIcon, SendIcon, XIcon } from "lucide-react"
 import {
   Area,
   AreaChart,
@@ -60,7 +59,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ApiError, api } from "@/lib/api"
-import { useAuth } from "@/lib/auth"
+import { Rail } from "@/components/Rail"
 import {
   emptyThread,
   loadChats,
@@ -399,7 +398,6 @@ function PlotDialog({ charts }: { charts: QuestionChart[] }) {
 }
 
 export function Desk() {
-  const { signOut } = useAuth()
   const [page, setPage] = useState<OrderPage | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [filters, setFilters] = useState<ColumnFilter[]>([])
@@ -608,34 +606,7 @@ export function Desk() {
 
   return (
     <div className="flex h-svh overflow-hidden">
-      <nav
-        aria-label="Desk"
-        className="flex h-full w-16 shrink-0 flex-col items-center gap-1 border-e bg-card py-3"
-      >
-        <div className="mb-3 flex size-10 items-center justify-center text-foreground">
-          <RocketIcon className="size-6" aria-hidden />
-          <span className="sr-only">Spaceship</span>
-        </div>
-        <Button variant="ghost" size="icon-lg" asChild>
-          <Link to="/dashboard" aria-label="Dashboard" aria-current="page" className="bg-accent text-foreground">
-            <LayoutDashboardIcon className="size-5" />
-          </Link>
-        </Button>
-        <div className="mt-auto flex flex-col items-center gap-1">
-          <Button variant="ghost" size="icon-lg" type="button" aria-label="Settings">
-            <SettingsIcon className="size-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            type="button"
-            aria-label="Sign out"
-            onClick={() => void signOut()}
-          >
-            <LogOutIcon className="size-5" />
-          </Button>
-        </div>
-      </nav>
+      <Rail current="dashboard" />
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-8 overflow-y-auto px-6 py-8">

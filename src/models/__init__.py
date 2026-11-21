@@ -73,12 +73,18 @@ class User(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     email: str = Field(sa_column=Column(String(320), unique=True, nullable=False))
+    name: str = Field(default="", max_length=120)
     password_hash: str
     role: UserRole = Field(
         sa_column=Column(
             SAEnum(UserRole, name="user_role", values_callable=_enum_values),
             nullable=False,
         )
+    )
+    invite_token_hash: str | None = Field(default=None, max_length=64, unique=True)
+    invite_expires_at: datetime | None = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
     )
 
 

@@ -4,9 +4,13 @@ Spaceship has two kinds of identity, and they are not the same thing.
 
 The shipping book has clients (`CL-1023`). Those are accounts the company ships for. They do not log in.
 
-People who use the desk are `users`. This slice has one of them, created by the seed script from `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`. The role is `admin` or `analyst`. Both roles can read every order, the metrics, and ask questions. There is no per-order ownership. Recording that here is the authorization rule: a valid token is enough for every row in the book. A later tenant-facing product would have to add a real ownership check. This one must not pretend to have one.
+People who use the desk are `users`. The seeded account comes from `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` and stays `admin`. The role is `admin` or `member`. Both roles can read every order, the metrics, and ask questions. There is no per-order ownership and no organisation. A valid token is enough for every row in the book.
 
-Authentication answers who is calling (401). Authorization would answer what they may do (403). No route in this slice returns 403.
+Only an admin can invite. `POST /v1/invites` stores the person with a password they cannot use and a hashed one-time token that expires in 7 days. Resend sends the raw token once, inside a link to `/accept-invite`. The API response does not include it. `POST /v1/invites/accept` sets the password and clears the token. Until a sending domain is verified, `onboarding@resend.dev` only delivers to the address on the Resend account.
+
+A person can change their own name and role with `POST /v1/me`. The access token is checked, then the user row is loaded again, so a role change applies on the next request. A wrong current password on `POST /v1/me/password` uses the same 401 sentence as login.
+
+Authentication answers who is calling (401). Authorization answers what they may do (403). A member who calls `POST /v1/invites` gets 403. Every other route in this slice is allowed for both roles.
 
 ## Tokens
 

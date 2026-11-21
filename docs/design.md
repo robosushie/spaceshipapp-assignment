@@ -1,6 +1,6 @@
 # Design
 
-Spaceship is the screen an ops analyst opens to see the 2025 shipping book. The job is to notice what is late or stuck, read the order, and ask a question about the rows. It is not a marketing site and it is not a settings product.
+Spaceship is the screen an ops person opens to see the 2025 shipping book. The job is to notice what is late or stuck, read the order, and ask a question about the rows. Settings is that person's own profile, and an admin can invite someone else. It is not a marketing site.
 
 ## Audience and job
 

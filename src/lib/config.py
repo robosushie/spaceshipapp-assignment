@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     jwt_audience: str = "spaceship-web"
     anthropic_api_key: str = ""
     openai_api_key: str = ""
+    resend_api_key: str = ""
+    resend_from: str = "onboarding@resend.dev"
+    web_origin: str = "http://localhost:5174"
     cors_origins: str = "http://localhost:5173"
     cookie_secure: bool = False
     access_token_minutes: int = 15
