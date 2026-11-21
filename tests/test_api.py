@@ -59,6 +59,27 @@ def test_orders_returns_a_page(client: TestClient) -> None:
     assert body["items"][0]["order_value_usd"] == "26.22"
 
 
+def test_column_filter_narrows_the_page(client: TestClient) -> None:
+    add_order()
+    token = _token(client)
+    headers = {"Authorization": f"Bearer {token}"}
+    hit = client.get(
+        "/v1/orders",
+        params={"filter": "destination_city:contains:Leeds"},
+        headers=headers,
+    )
+    miss = client.get(
+        "/v1/orders",
+        params={"filter": "destination_city:contains:Nowhere"},
+        headers=headers,
+    )
+    rejected = client.get("/v1/orders", params={"filter": "drop:equals:x"}, headers=headers)
+    assert hit.status_code == 200
+    assert hit.json()["total"] == 1
+    assert miss.json()["total"] == 0
+    assert rejected.status_code == 422
+
+
 def test_limit_above_max_is_422(client: TestClient) -> None:
     token = _token(client)
     response = client.get(

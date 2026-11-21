@@ -27,9 +27,10 @@ All versioned routes are mounted once under `/v1`. Route modules do not repeat `
 Query parameters, all optional except pagination defaults:
 
 - `status` — one of `delivered`, `delayed`, `in_transit`, `exception`, `canceled`
-- `region` — `UK`, `EU`, `US-E`, `US-C`, `US-W`
+- `region` — exact warehouse region
 - `carrier` — carrier name, exact match
 - `client_id` — exact match
+- `filter` — repeatable. Each value is `column:operator:value`, at most 8. Columns are `order_id`, `client_id`, `order_date`, `delivery_date`, `carrier`, `warehouse`, `region`, `origin_city`, `destination_city`, `status`, `sku`, `category`, `quantity`, `unit_price_usd`, `order_value_usd`, `promo`. Text operators are `contains` and `equals`. Dates are `on`, `before`, `after`, and `empty` (no value). Numbers are `equals`, `gt`, and `lt`. Status and promo use `is` (`yes` or `no` for promo). An unknown column, operator, or value is 422.
 - `limit` — default 10, maximum 50. Above 50 is 422.
 - `offset` — default 0. Negative is 422.
 

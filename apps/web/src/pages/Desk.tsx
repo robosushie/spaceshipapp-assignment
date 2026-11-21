@@ -29,7 +29,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
-import { Field, FieldLabel } from "@/components/ui/field"
 import { Message, MessageContent } from "@/components/ui/message"
 import {
   MessageScroller,
@@ -69,7 +68,49 @@ import {
 } from "@/lib/chats"
 import { money, statusLabel } from "@/lib/format"
 import { cn } from "@/lib/utils"
-import type { Metrics, OrderPage, QuestionChart, QuestionResult } from "@/types/desk"
+import type { OrderPage, QuestionChart, QuestionResult } from "@/types/desk"
+
+type FilterKind = "text" | "date" | "number" | "status" | "bool"
+type ColumnFilter = { id: string; column: string; op: string; value: string }
+
+const COLUMNS: { id: string; label: string; kind: FilterKind }[] = [
+  { id: "order_id", label: "Order", kind: "text" },
+  { id: "client_id", label: "Client", kind: "text" },
+  { id: "order_date", label: "Order date", kind: "date" },
+  { id: "delivery_date", label: "Delivery", kind: "date" },
+  { id: "carrier", label: "Carrier", kind: "text" },
+  { id: "warehouse", label: "Warehouse", kind: "text" },
+  { id: "region", label: "Region", kind: "text" },
+  { id: "origin_city", label: "Origin", kind: "text" },
+  { id: "destination_city", label: "Destination", kind: "text" },
+  { id: "status", label: "Status", kind: "status" },
+  { id: "sku", label: "SKU", kind: "text" },
+  { id: "category", label: "Category", kind: "text" },
+  { id: "quantity", label: "Qty", kind: "number" },
+  { id: "unit_price_usd", label: "Unit price", kind: "number" },
+  { id: "order_value_usd", label: "Value", kind: "number" },
+  { id: "promo", label: "Promo", kind: "bool" },
+]
+
+const OPS: Record<FilterKind, { id: string; label: string }[]> = {
+  text: [
+    { id: "contains", label: "contains" },
+    { id: "equals", label: "equals" },
+  ],
+  date: [
+    { id: "on", label: "on" },
+    { id: "before", label: "before" },
+    { id: "after", label: "after" },
+    { id: "empty", label: "is empty" },
+  ],
+  number: [
+    { id: "equals", label: "equals" },
+    { id: "gt", label: "greater than" },
+    { id: "lt", label: "less than" },
+  ],
+  status: [{ id: "is", label: "is" }],
+  bool: [{ id: "is", label: "is" }],
+}
 
 const PAGE = 40
 const CHAT_WIDTH_KEY = "spaceship-chat-width"
@@ -77,8 +118,10 @@ const CHAT_DEFAULT = 320
 const CHAT_MIN = 220
 const CHAT_MAX = 720
 const STATUSES = ["delivered", "delayed", "in_transit", "exception", "canceled"]
-const REGIONS = ["UK", "EU", "US-E", "US-C", "US-W"]
-const CARRIERS = ["DHL", "DPD", "FedEx", "GLS", "LaserShip", "OnTrac", "Royal Mail", "UPS", "USPS"]
+
+function columnKind(id: string): FilterKind {
+  return COLUMNS.find((column) => column.id === id)?.kind ?? "text"
+}
 
 function clampChatWidth(value: number, viewport: number): number {
   const max = Math.min(CHAT_MAX, Math.round(viewport * 0.7))
@@ -357,12 +400,9 @@ function PlotDialog({ charts }: { charts: QuestionChart[] }) {
 
 export function Desk() {
   const { signOut } = useAuth()
-  const [metrics, setMetrics] = useState<Metrics | null>(null)
   const [page, setPage] = useState<OrderPage | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [status, setStatus] = useState("all")
-  const [region, setRegion] = useState("all")
-  const [carrier, setCarrier] = useState("all")
+  const [filters, setFilters] = useState<ColumnFilter[]>([])
   const [offset, setOffset] = useState(0)
   const [question, setQuestion] = useState("")
   const [askingThreadId, setAskingThreadId] = useState<string | null>(null)
@@ -376,14 +416,11 @@ export function Desk() {
 
   useEffect(() => {
     const params = new URLSearchParams({ limit: String(PAGE), offset: String(offset) })
-    if (status !== "all") {
-      params.set("status", status)
-    }
-    if (region !== "all") {
-      params.set("region", region)
-    }
-    if (carrier !== "all") {
-      params.set("carrier", carrier)
+    for (const filter of filters) {
+      if (filter.op !== "empty" && filter.value.trim().length === 0) {
+        continue
+      }
+      params.append("filter", `${filter.column}:${filter.op}:${filter.value.trim()}`)
     }
     let cancelled = false
     api<OrderPage>(`/v1/orders?${params.toString()}`)
@@ -401,25 +438,7 @@ export function Desk() {
     return () => {
       cancelled = true
     }
-  }, [status, region, carrier, offset])
-
-  useEffect(() => {
-    let cancelled = false
-    api<Metrics>("/v1/metrics")
-      .then((body) => {
-        if (!cancelled) {
-          setMetrics(body)
-        }
-      })
-      .catch((caught: unknown) => {
-        if (!cancelled) {
-          setLoadError(caught instanceof ApiError ? caught.message : "Metrics could not be loaded.")
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  }, [filters, offset])
 
   useEffect(() => {
     saveChats(desk)
@@ -619,54 +638,42 @@ export function Desk() {
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-8 overflow-y-auto px-6 py-8">
-        <header className="flex flex-col gap-1">
+        <header>
           <h1 className="text-3xl font-bold">Spaceship</h1>
-          <p>The 2025 shipping book</p>
-          <p className="text-muted-foreground">1 Jan 2025 – 30 Dec 2025</p>
         </header>
 
         {loadError ? <p role="alert">{loadError}</p> : null}
 
-        <section className="flex flex-wrap gap-6">
-          {(metrics?.by_status ?? STATUSES.map((item) => ({ status: item, count: 0 }))).map(
-            (row) => (
-              <div key={row.status} className="flex flex-col">
-                <span className="text-muted-foreground">{statusLabel(row.status)}</span>
-                <span className="text-2xl font-bold tabular-nums">{metrics ? row.count : "–"}</span>
-              </div>
-            ),
-          )}
-        </section>
-
         <section className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-3">
-            <FilterSelect
-              label="Status"
-              value={status}
-              options={STATUSES}
-              onChange={(value) => {
-                setStatus(value)
-                setOffset(0)
-              }}
-            />
-            <FilterSelect
-              label="Region"
-              value={region}
-              options={REGIONS}
-              onChange={(value) => {
-                setRegion(value)
-                setOffset(0)
-              }}
-            />
-            <FilterSelect
-              label="Carrier"
-              value={carrier}
-              options={CARRIERS}
-              onChange={(value) => {
-                setCarrier(value)
-                setOffset(0)
-              }}
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            {filters.map((filter) => (
+              <FilterRow
+                key={filter.id}
+                filter={filter}
+                onChange={(next) => {
+                  setFilters((current) => current.map((item) => (item.id === next.id ? next : item)))
+                  setOffset(0)
+                }}
+                onRemove={() => {
+                  setFilters((current) => current.filter((item) => item.id !== filter.id))
+                  setOffset(0)
+                }}
+              />
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setFilters((current) => [
+                  ...current,
+                  { id: crypto.randomUUID(), column: "order_id", op: "contains", value: "" },
+                ])
+              }
+            >
+              <PlusIcon />
+              Add filter
+            </Button>
           </div>
           {page && page.items.length === 0 ? (
             <Empty>
@@ -935,35 +942,93 @@ function ChatTab({
   )
 }
 
-function FilterSelect({
-  label,
-  value,
-  options,
+function FilterRow({
+  filter,
   onChange,
+  onRemove,
 }: {
-  label: string
-  value: string
-  options: string[]
-  onChange: (value: string) => void
+  filter: ColumnFilter
+  onChange: (filter: ColumnFilter) => void
+  onRemove: () => void
 }) {
+  const kind = columnKind(filter.column)
+  const ops = OPS[kind]
   return (
-    <Field className="w-40">
-      <FieldLabel>{label}</FieldLabel>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+    <div className="flex items-center gap-1 rounded-[8px] border border-border bg-card p-1">
+      <Select
+        value={filter.column}
+        onValueChange={(column) => {
+          const nextKind = columnKind(column ?? filter.column)
+          onChange({ ...filter, column: column ?? filter.column, op: OPS[nextKind][0].id, value: "" })
+        }}
+      >
+        <SelectTrigger className="h-8 w-32" aria-label="Filter column">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectItem value="all">Any</SelectItem>
-            {options.map((option) => (
-              <SelectItem key={option} value={option}>
-                {label === "Status" ? statusLabel(option) : option}
+            {COLUMNS.map((column) => (
+              <SelectItem key={column.id} value={column.id}>
+                {column.label}
               </SelectItem>
             ))}
           </SelectGroup>
         </SelectContent>
       </Select>
-    </Field>
+      <Select value={filter.op} onValueChange={(op) => onChange({ ...filter, op: op ?? filter.op, value: "" })}>
+        <SelectTrigger className="h-8 w-32" aria-label="Filter operator">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {ops.map((op) => (
+              <SelectItem key={op.id} value={op.id}>
+                {op.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {filter.op === "empty" ? null : kind === "status" ? (
+        <Select value={filter.value || undefined} onValueChange={(value) => onChange({ ...filter, value: value ?? "" })}>
+          <SelectTrigger className="h-8 w-32" aria-label="Filter value">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {STATUSES.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {statusLabel(status)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      ) : kind === "bool" ? (
+        <Select value={filter.value || undefined} onValueChange={(value) => onChange({ ...filter, value: value ?? "" })}>
+          <SelectTrigger className="h-8 w-24" aria-label="Filter value">
+            <SelectValue placeholder="Yes or no" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="yes">Yes</SelectItem>
+              <SelectItem value="no">No</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      ) : (
+        <input
+          aria-label="Filter value"
+          className="h-8 w-36 rounded-[2px] border border-input bg-transparent px-2 text-sm"
+          type={kind === "date" ? "date" : "text"}
+          inputMode={kind === "number" ? "decimal" : undefined}
+          value={filter.value}
+          onChange={(event) => onChange({ ...filter, value: event.target.value })}
+        />
+      )}
+      <Button type="button" variant="ghost" size="icon-xs" aria-label="Remove filter" onClick={onRemove}>
+        <XIcon />
+      </Button>
+    </div>
   )
 }
