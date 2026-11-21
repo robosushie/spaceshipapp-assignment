@@ -648,7 +648,7 @@ export function Desk() {
       </main>
 
       <aside className="flex h-72 w-full shrink-0 flex-col border-t bg-card lg:h-full lg:w-80 lg:border-s lg:border-t-0">
-        <div className="flex shrink-0 items-end border-b border-border bg-background">
+        <div className="flex shrink-0 items-end border-b border-border bg-background pt-1.5">
           <div
             role="tablist"
             aria-label="Chats"
