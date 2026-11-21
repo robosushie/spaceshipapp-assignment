@@ -147,7 +147,7 @@ function StatusBadge({ status }: { status: string }) {
     status === "exception"
       ? "h-auto rounded-full border border-primary bg-transparent px-2.5 py-0.5 text-sm text-primary"
       : status === "delivered"
-        ? "h-auto rounded-full border border-foreground bg-foreground px-2.5 py-0.5 text-sm text-background"
+        ? "h-auto rounded-full border border-foreground bg-foreground px-2.5 py-0.5 text-sm text-card"
         : "h-auto rounded-full border border-foreground bg-transparent px-2.5 py-0.5 text-sm text-foreground"
   return <Badge className={tone}>{statusLabel(status)}</Badge>
 }
@@ -617,7 +617,7 @@ export function Desk() {
           <span className="sr-only">Spaceship</span>
         </div>
         <Button variant="ghost" size="icon-lg" asChild>
-          <Link to="/dashboard" aria-label="Dashboard" aria-current="page" className="text-primary">
+          <Link to="/dashboard" aria-label="Dashboard" aria-current="page" className="bg-accent text-foreground">
             <LayoutDashboardIcon className="size-5" />
           </Link>
         </Button>
@@ -640,7 +640,7 @@ export function Desk() {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-8 overflow-y-auto px-6 py-8">
         <header>
-          <h1 className="text-xl">Spaceship</h1>
+          <h1 className="text-[28px]">Spaceship</h1>
         </header>
 
         {loadError ? <p role="alert">{loadError}</p> : null}
@@ -988,7 +988,7 @@ function FilterChip({
         <div
           className={cn(
             "inline-flex max-w-full items-center rounded-full border bg-background",
-            open ? "border-primary" : "border-foreground",
+            open ? "border-foreground bg-accent" : "border-foreground bg-card",
           )}
         >
           <PopoverTrigger asChild>

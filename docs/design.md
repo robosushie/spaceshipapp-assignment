@@ -8,25 +8,28 @@ One person, at a desk, during the workday. They already know what a carrier and 
 
 ## Tokens
 
-One typeface: Inter (the stand-in for the gallery face), used for titles, body, and digits. Tabular figures for counts and money. JetBrains Mono is only for code and annotations, with wider tracking. Order ids stay in Inter.
+One typeface: Inter, standing in for the light editorial face. Titles at 28px and above use weight 460. Tabular figures for counts and money. JetBrains Mono is only for code and annotations. Order ids stay in Inter.
 
-The desk, the order table, filters, and the sign-in form are 14px. The desk title is 20px. The sign-in title is 40px. The question field and the empty chat prompt stay at 16px. Chat messages and chat tabs are 14px. The left rail icons are 20px, and the rocket mark is 24px.
+The desk, the order table, filters, and the sign-in form are 14px. The desk title is 28px. The sign-in title is 49px. The question field and the empty chat prompt stay at 16px. Chat messages and chat tabs are 14px. The left rail icons are 20px, and the rocket mark is 24px.
 
-Color is a white gallery. Black text, white surfaces, and one electric indigo for the action that should be switched on. Charts and status stay inside that set.
+Color is warm parchment, not white and not a cold gallery. Charcoal text, hairline mist rules, and white only where a card needs to lift. Wine is the one filled action. Lilac is the secondary surface. Violet is only for links.
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| Paper | `#FFFFFF` | Page, table, and chat |
-| Mist | `#E2E2E2` | Quiet rules, assistant replies, hover wash |
-| Ink | `#000000` | Text, outlined controls, delivered badge |
-| Graphite | `#595959` | Secondary text |
-| Indigo | `#4D49FC` | Sign in, the send icon, the active desk icon, exception, focus |
+| Parchment | `#F2F0EB` | Page canvas |
+| Paper | `#FFFFFF` | Chat panel, filter panel, plot dialog, inputs |
+| Mist | `#E3E3E2` | Rules and dividers |
+| Ink | `#292827` | Text, icon strokes, delivered badge |
+| Stone | `#666666` | Secondary text |
+| Wine | `#421D24` | Sign in and the send icon |
+| Lilac | `#D4C7FF` | Filter, previous, next, the open filter, your messages, the active desk icon |
+| Violet | `#714CB6` | Links and the focus ring |
 
-Delivered is a black pill. Delayed, in transit, and canceled are outlined. Exception is the indigo pill outline. Bars and lines use ink. Pie slices use ink, indigo, graphite, and mist.
+Delivered is an ink pill with white type. Delayed, in transit, and canceled are outlined. Exception is wine. Bars and lines use ink. Pie slices use ink, wine, stone, and lilac.
 
-shadcn semantic tokens (`background`, `foreground`, `primary`, `muted`, `border`, `card`) are mapped to these hex values in `apps/web/src/index.css`. Components use those tokens. Feature code does not use raw palette classes such as `text-amber-700`.
+shadcn semantic tokens (`background`, `foreground`, `primary`, `muted`, `border`, `card`, `accent`, `link`) are mapped to these hex values in `apps/web/src/index.css`. Components use those tokens. Feature code does not use raw palette classes such as `text-amber-700`.
 
-Radius is four steps: 2px for fine controls, 8px for inputs and outlined buttons, 16px for cards and messages, and a pill for the primary button and status chips. The only drop shadow is the open plot dialog. Table rules are mist, not black.
+Buttons are 16px radius. Smaller controls, inputs, and outlined actions are 8px. Cards, messages, and the filter panel are 16px. Status chips are pills. Surfaces do not use drop shadows. Table rules are mist.
 
 ## Layout
 
@@ -49,7 +52,7 @@ one question
 
 On a narrow viewport the chat column stacks above the table. Nothing becomes a stack of equal cards.
 
-Plots are not drawn on the desk page. When the question asks for a plot, the reply includes one Recharts series built from the rows Postgres returned: a line or area over time, a bar comparison, a pie for a small share of a whole, or a scatter of two numeric columns. The reply shows a short dummy plot, narrower than the message: a line over a light grid, the same drawing for every chart. Hovering it shows "Click me". Activating it opens the real plot in a dialog in the center of the screen. Plot and Data are an underline row that scrolls sideways, and the data table scrolls when it overflows. Axes are labeled in the same sentence case as the rest of the UI. Bars, lines, areas, and scatter use ink. Pie slices use ink, indigo, graphite, and mist. A question that does not ask for a plot has no chart.
+Plots are not drawn on the desk page. When the question asks for a plot, the reply includes one Recharts series built from the rows Postgres returned: a line or area over time, a bar comparison, a pie for a small share of a whole, or a scatter of two numeric columns. The reply shows a short dummy plot, narrower than the message: a line over a light grid, the same drawing for every chart. Hovering it shows "Click me". Activating it opens the real plot in a dialog in the center of the screen. Plot and Data are an underline row that scrolls sideways, and the data table scrolls when it overflows. Axes are labeled in the same sentence case as the rest of the UI. Bars, lines, areas, and scatter use ink. Pie slices use ink, wine, stone, and lilac. A question that does not ask for a plot has no chart.
 
 ## Screens
 

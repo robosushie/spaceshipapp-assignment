@@ -33,7 +33,7 @@ export function Login() {
 
   return (
     <main className="mx-auto flex min-h-svh max-w-sm flex-col justify-center gap-12 px-6">
-      <h1 className="text-[40px]">Spaceship</h1>
+      <h1 className="text-[49px] leading-[1.2] tracking-[-0.027em]">Spaceship</h1>
       <form onSubmit={onSubmit}>
         <FieldGroup>
           <Field data-invalid={error ? true : undefined}>
