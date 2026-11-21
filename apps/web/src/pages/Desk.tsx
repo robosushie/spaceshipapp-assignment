@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type Ref } from "react"
-import { LayoutDashboardIcon, LogOutIcon, PlusIcon, RocketIcon, SendIcon, SettingsIcon, XIcon } from "lucide-react"
+import { ChevronLeftIcon, ChevronRightIcon, FunnelIcon, LayoutDashboardIcon, LogOutIcon, PlusIcon, RocketIcon, SendIcon, SettingsIcon, XIcon } from "lucide-react"
 import { Link } from "react-router"
 import {
   Area,
@@ -29,6 +29,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Message, MessageContent } from "@/components/ui/message"
 import {
   MessageScroller,
@@ -400,6 +403,7 @@ export function Desk() {
   const [page, setPage] = useState<OrderPage | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [filters, setFilters] = useState<ColumnFilter[]>([])
+  const [openFilterId, setOpenFilterId] = useState<string | null>(null)
   const [offset, setOffset] = useState(0)
   const [question, setQuestion] = useState("")
   const [askingThreadId, setAskingThreadId] = useState<string | null>(null)
@@ -644,15 +648,18 @@ export function Desk() {
         <section className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             {filters.map((filter) => (
-              <FilterRow
+              <FilterChip
                 key={filter.id}
                 filter={filter}
+                open={openFilterId === filter.id}
+                onOpenChange={(next) => setOpenFilterId(next ? filter.id : null)}
                 onChange={(next) => {
                   setFilters((current) => current.map((item) => (item.id === next.id ? next : item)))
                   setOffset(0)
                 }}
                 onRemove={() => {
                   setFilters((current) => current.filter((item) => item.id !== filter.id))
+                  setOpenFilterId((current) => (current === filter.id ? null : current))
                   setOffset(0)
                 }}
               />
@@ -660,15 +667,17 @@ export function Desk() {
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
+              onClick={() => {
+                const id = crypto.randomUUID()
                 setFilters((current) => [
                   ...current,
-                  { id: crypto.randomUUID(), column: "order_id", op: "contains", value: "" },
+                  { id, column: "order_id", op: "contains", value: "" },
                 ])
-              }
+                setOpenFilterId(id)
+              }}
             >
-              <PlusIcon />
-              Add filter
+              <FunnelIcon data-icon="inline-start" />
+              Filter
             </Button>
           </div>
           {page && page.items.length === 0 ? (
@@ -740,6 +749,7 @@ export function Desk() {
                 disabled={offset === 0}
                 onClick={() => setOffset((current) => Math.max(0, current - PAGE))}
               >
+                <ChevronLeftIcon data-icon="inline-start" />
                 Previous
               </Button>
               <Button
@@ -748,6 +758,7 @@ export function Desk() {
                 onClick={() => setOffset((current) => current + PAGE)}
               >
                 Next
+                <ChevronRightIcon data-icon="inline-end" />
               </Button>
             </div>
           </div>
@@ -938,93 +949,166 @@ function ChatTab({
   )
 }
 
-function FilterRow({
+function filterSentence(filter: ColumnFilter): string {
+  const column = COLUMNS.find((item) => item.id === filter.column)?.label ?? filter.column
+  const op = OPS[columnKind(filter.column)].find((item) => item.id === filter.op)?.label ?? filter.op
+  if (filter.op === "empty") {
+    return `${column} ${op}`
+  }
+  if (filter.value.trim().length === 0) {
+    return `${column} ${op}…`
+  }
+  const value = filter.column === "status" ? statusLabel(filter.value) : filter.value
+  return `${column} ${op} ${value}`
+}
+
+function keepPopoverOpen(event: { target: EventTarget | null; preventDefault: () => void }) {
+  if (event.target instanceof Element && event.target.closest("[data-slot=select-content]")) {
+    event.preventDefault()
+  }
+}
+
+function FilterChip({
   filter,
+  open,
+  onOpenChange,
   onChange,
   onRemove,
 }: {
   filter: ColumnFilter
+  open: boolean
+  onOpenChange: (open: boolean) => void
   onChange: (filter: ColumnFilter) => void
   onRemove: () => void
+}) {
+  const sentence = filterSentence(filter)
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverAnchor asChild>
+        <div
+          className={cn(
+            "inline-flex max-w-full items-center rounded-full border bg-background",
+            open ? "border-primary" : "border-foreground",
+          )}
+        >
+          <PopoverTrigger asChild>
+            <button type="button" className="max-w-56 truncate px-3 py-1 text-sm">
+              {sentence}
+            </button>
+          </PopoverTrigger>
+          <button
+            type="button"
+            aria-label={`Remove ${sentence}`}
+            className="pe-2 text-foreground"
+            onClick={onRemove}
+          >
+            <XIcon className="size-3" />
+          </button>
+        </div>
+      </PopoverAnchor>
+      <PopoverContent
+        aria-label="Edit filter"
+        onInteractOutside={keepPopoverOpen}
+        onFocusOutside={keepPopoverOpen}
+      >
+        <FilterEditor filter={filter} onChange={onChange} />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function FilterEditor({
+  filter,
+  onChange,
+}: {
+  filter: ColumnFilter
+  onChange: (filter: ColumnFilter) => void
 }) {
   const kind = columnKind(filter.column)
   const ops = OPS[kind]
   return (
-    <div className="flex items-center gap-1 rounded-[8px] border border-border bg-card p-1">
-      <Select
-        value={filter.column}
-        onValueChange={(column) => {
-          const nextKind = columnKind(column ?? filter.column)
-          onChange({ ...filter, column: column ?? filter.column, op: OPS[nextKind][0].id, value: "" })
-        }}
-      >
-        <SelectTrigger className="h-8 w-32" aria-label="Filter column">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {COLUMNS.map((column) => (
-              <SelectItem key={column.id} value={column.id}>
-                {column.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <Select value={filter.op} onValueChange={(op) => onChange({ ...filter, op: op ?? filter.op, value: "" })}>
-        <SelectTrigger className="h-8 w-32" aria-label="Filter operator">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {ops.map((op) => (
-              <SelectItem key={op.id} value={op.id}>
-                {op.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      {filter.op === "empty" ? null : kind === "status" ? (
-        <Select value={filter.value || undefined} onValueChange={(value) => onChange({ ...filter, value: value ?? "" })}>
-          <SelectTrigger className="h-8 w-32" aria-label="Filter value">
-            <SelectValue placeholder="Status" />
+    <FieldGroup className="gap-3">
+      <Field>
+        <FieldLabel>Column</FieldLabel>
+        <Select
+          value={filter.column}
+          onValueChange={(column) => {
+            const nextKind = columnKind(column ?? filter.column)
+            onChange({ ...filter, column: column ?? filter.column, op: OPS[nextKind][0].id, value: "" })
+          }}
+        >
+          <SelectTrigger className="w-full" aria-label="Filter column">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {STATUSES.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {statusLabel(status)}
+              {COLUMNS.map((column) => (
+                <SelectItem key={column.id} value={column.id}>
+                  {column.label}
                 </SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
         </Select>
-      ) : kind === "bool" ? (
-        <Select value={filter.value || undefined} onValueChange={(value) => onChange({ ...filter, value: value ?? "" })}>
-          <SelectTrigger className="h-8 w-24" aria-label="Filter value">
-            <SelectValue placeholder="Yes or no" />
+      </Field>
+      <Field>
+        <FieldLabel>Operator</FieldLabel>
+        <Select value={filter.op} onValueChange={(op) => onChange({ ...filter, op: op ?? filter.op, value: "" })}>
+          <SelectTrigger className="w-full" aria-label="Filter operator">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="yes">Yes</SelectItem>
-              <SelectItem value="no">No</SelectItem>
+              {ops.map((op) => (
+                <SelectItem key={op.id} value={op.id}>
+                  {op.label}
+                </SelectItem>
+              ))}
             </SelectGroup>
           </SelectContent>
         </Select>
-      ) : (
-        <input
-          aria-label="Filter value"
-          className="h-8 w-36 rounded-lg border border-input bg-transparent px-2 text-sm"
-          type={kind === "date" ? "date" : "text"}
-          inputMode={kind === "number" ? "decimal" : undefined}
-          value={filter.value}
-          onChange={(event) => onChange({ ...filter, value: event.target.value })}
-        />
+      </Field>
+      {filter.op === "empty" ? null : (
+        <Field>
+          <FieldLabel>Value</FieldLabel>
+          {kind === "status" ? (
+            <Select value={filter.value || undefined} onValueChange={(value) => onChange({ ...filter, value: value ?? "" })}>
+              <SelectTrigger className="w-full" aria-label="Filter value">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {statusLabel(status)}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          ) : kind === "bool" ? (
+            <Select value={filter.value || undefined} onValueChange={(value) => onChange({ ...filter, value: value ?? "" })}>
+              <SelectTrigger className="w-full" aria-label="Filter value">
+                <SelectValue placeholder="Yes or no" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              aria-label="Filter value"
+              type={kind === "date" ? "date" : "text"}
+              inputMode={kind === "number" ? "decimal" : undefined}
+              value={filter.value}
+              onChange={(event) => onChange({ ...filter, value: event.target.value })}
+            />
+          )}
+        </Field>
       )}
-      <Button type="button" variant="ghost" size="icon-xs" aria-label="Remove filter" onClick={onRemove}>
-        <XIcon />
-      </Button>
-    </div>
+    </FieldGroup>
   )
 }
