@@ -648,11 +648,11 @@ export function Desk() {
       </main>
 
       <aside className="flex h-72 w-full shrink-0 flex-col border-t bg-card lg:h-full lg:w-80 lg:border-s lg:border-t-0">
-        <div className="flex shrink-0 items-center border-b">
+        <div className="flex shrink-0 items-end border-b border-border bg-background">
           <div
             role="tablist"
             aria-label="Chats"
-            className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 py-2"
+            className="flex min-w-0 flex-1 items-end overflow-x-auto"
           >
             {desk.threads.map((thread) => (
               <ChatTab
@@ -668,9 +668,9 @@ export function Desk() {
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-xs"
             aria-label="New chat"
-            className="mr-1 shrink-0"
+            className="mb-1 mr-1 shrink-0"
             onClick={openThread}
           >
             <PlusIcon />
@@ -778,15 +778,17 @@ function ChatTab({
     <div
       ref={tabRef}
       className={cn(
-        "flex shrink-0 items-center rounded-[2px]",
-        active ? "bg-foreground text-primary-foreground" : "text-muted-foreground",
+        "group/tab relative flex shrink-0 items-center",
+        active
+          ? "z-10 -mb-px rounded-t-[8px] border border-b-0 border-border bg-card text-foreground"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       <button
         type="button"
         role="tab"
         aria-selected={active}
-        className="max-w-36 truncate px-2 py-1 text-sm"
+        className="max-w-36 truncate px-3 py-1.5 text-sm"
         onClick={onSelect}
       >
         {thread.title}
@@ -794,7 +796,10 @@ function ChatTab({
       <button
         type="button"
         aria-label={`Close ${thread.title}`}
-        className="px-1 py-1"
+        className={cn(
+          "me-1.5 rounded-[2px] p-0.5 hover:bg-muted",
+          active ? "opacity-100" : "opacity-0 group-hover/tab:opacity-100 group-focus-within/tab:opacity-100",
+        )}
         onClick={onClose}
       >
         <XIcon className="size-3" />
