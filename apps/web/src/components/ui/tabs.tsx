@@ -6,7 +6,7 @@ function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
-      className={cn("flex flex-col gap-3", className)}
+      className={cn("flex min-w-0 flex-col gap-3", className)}
       {...props}
     />
   )
@@ -16,7 +16,10 @@ function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimi
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      className={cn("flex w-full flex-wrap gap-1 rounded-[12px] bg-muted p-1", className)}
+      className={cn(
+        "flex w-full min-w-0 flex-nowrap overflow-x-auto border-b border-border",
+        className,
+      )}
       {...props}
     />
   )
@@ -27,7 +30,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "rounded-[10px] px-3 py-1.5 text-sm text-muted-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=active]:bg-card data-[state=active]:text-foreground",
+        "shrink-0 -mb-px border-b-2 border-transparent px-3 py-2 text-sm whitespace-nowrap text-muted-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=active]:border-foreground data-[state=active]:text-foreground",
         className,
       )}
       {...props}

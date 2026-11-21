@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { LayoutDashboardIcon, LogOutIcon, RocketIcon, SendIcon, SettingsIcon } from "lucide-react"
+import { useEffect, useRef, useState, type Ref } from "react"
+import { LayoutDashboardIcon, LogOutIcon, PlusIcon, RocketIcon, SendIcon, SettingsIcon, XIcon } from "lucide-react"
 import { Link } from "react-router"
 import {
   Area,
@@ -59,6 +59,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ApiError, api } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import {
+  emptyThread,
+  loadChats,
+  saveChats,
+  type ChatDesk,
+  type ChatMessage,
+  type ChatThread,
+} from "@/lib/chats"
 import { money, statusLabel } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import type { Metrics, OrderPage, QuestionChart, QuestionResult } from "@/types/desk"
@@ -67,13 +75,6 @@ const PAGE = 40
 const STATUSES = ["delivered", "delayed", "in_transit", "exception", "canceled"]
 const REGIONS = ["UK", "EU", "US-E", "US-C", "US-W"]
 const CARRIERS = ["DHL", "DPD", "FedEx", "GLS", "LaserShip", "OnTrac", "Royal Mail", "UPS", "USPS"]
-
-type ChatMessage = {
-  id: string
-  role: "user" | "assistant"
-  text: string
-  charts: QuestionChart[]
-}
 
 function StatusBadge({ status }: { status: string }) {
   const tone =
@@ -246,6 +247,20 @@ function DataTable({ chart }: { chart: QuestionChart }) {
   )
 }
 
+function PlotPlaceholder() {
+  return (
+    <svg viewBox="0 0 160 72" className="h-24 w-full text-foreground" aria-hidden>
+      <line x1="16" y1="8" x2="16" y2="60" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="16" y1="60" x2="148" y2="60" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="28" y="36" width="14" height="24" fill="currentColor" />
+      <rect x="52" y="22" width="14" height="38" fill="currentColor" />
+      <rect x="76" y="30" width="14" height="30" fill="currentColor" />
+      <rect x="100" y="14" width="14" height="46" fill="currentColor" />
+      <rect x="124" y="26" width="14" height="34" fill="currentColor" />
+    </svg>
+  )
+}
+
 function PlotDialog({ charts }: { charts: QuestionChart[] }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState("plot-0")
@@ -264,7 +279,7 @@ function PlotDialog({ charts }: { charts: QuestionChart[] }) {
           }}
         >
           <span className="sr-only">Open {chart.title}</span>
-          <Plot chart={chart} className="pointer-events-none h-24 blur-sm" />
+          <PlotPlaceholder />
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
             <span className="rounded-full bg-foreground px-2 py-0.5 text-xs text-primary-foreground">
               Click me
@@ -320,8 +335,11 @@ export function Desk() {
   const [carrier, setCarrier] = useState("all")
   const [offset, setOffset] = useState(0)
   const [question, setQuestion] = useState("")
-  const [asking, setAsking] = useState(false)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [askingThreadId, setAskingThreadId] = useState<string | null>(null)
+  const [desk, setDesk] = useState<ChatDesk>(loadChats)
+  const activeTabRef = useRef<HTMLDivElement>(null)
+  const activeThread = desk.threads.find((thread) => thread.id === desk.activeId) ?? desk.threads[0]
+  const messages = activeThread?.messages ?? []
 
   useEffect(() => {
     const params = new URLSearchParams({ limit: String(PAGE), offset: String(offset) })
@@ -370,49 +388,93 @@ export function Desk() {
     }
   }, [])
 
+  useEffect(() => {
+    saveChats(desk)
+  }, [desk])
+
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({ inline: "nearest", block: "nearest" })
+  }, [desk.activeId])
+
+  function appendMessage(threadId: string, message: ChatMessage, title?: string) {
+    setDesk((current) => ({
+      ...current,
+      threads: current.threads.map((thread) => {
+        if (thread.id !== threadId) {
+          return thread
+        }
+        return {
+          ...thread,
+          title: title ?? thread.title,
+          messages: [...thread.messages, message],
+        }
+      }),
+    }))
+  }
+
+  function openThread() {
+    const thread = emptyThread()
+    setDesk((current) => ({
+      activeId: thread.id,
+      threads: [...current.threads, thread],
+    }))
+  }
+
+  function closeThread(threadId: string) {
+    setDesk((current) => {
+      const index = current.threads.findIndex((thread) => thread.id === threadId)
+      const threads = current.threads.filter((thread) => thread.id !== threadId)
+      if (threads.length === 0) {
+        const thread = emptyThread()
+        return { activeId: thread.id, threads: [thread] }
+      }
+      const activeId =
+        current.activeId === threadId
+          ? threads[Math.min(index, threads.length - 1)].id
+          : current.activeId
+      return { activeId, threads }
+    })
+  }
+
   async function onAsk() {
     const asked = question.trim()
-    if (asked.length === 0) {
+    const threadId = activeThread?.id
+    if (asked.length === 0 || !threadId || askingThreadId) {
       return
     }
-    const userId = crypto.randomUUID()
-    setMessages((current) => [
-      ...current,
-      { id: userId, role: "user", text: asked, charts: [] },
-    ])
+    const titled = activeThread.messages.some((message) => message.role === "user")
+    appendMessage(
+      threadId,
+      { id: crypto.randomUUID(), role: "user", text: asked, charts: [] },
+      titled ? undefined : asked,
+    )
     setQuestion("")
-    setAsking(true)
+    setAskingThreadId(threadId)
     try {
       const result = await api<QuestionResult>("/v1/questions", {
         method: "POST",
         body: JSON.stringify({ question: asked }),
       })
-      setMessages((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          text: result.answer,
-          charts: result.plot_required && result.chart ? [result.chart] : [],
-        },
-      ])
+      appendMessage(threadId, {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        text: result.answer,
+        charts: result.plot_required && result.chart ? [result.chart] : [],
+      })
     } catch (caught) {
       const unavailable = caught instanceof ApiError && caught.status === 503
-      setMessages((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          text: unavailable
-            ? "Questions are unavailable until an Anthropic key is configured."
-            : caught instanceof ApiError
-              ? caught.message
-              : "The question could not be answered.",
-          charts: [],
-        },
-      ])
+      appendMessage(threadId, {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        text: unavailable
+          ? "Questions are unavailable until an Anthropic key is configured."
+          : caught instanceof ApiError
+            ? caught.message
+            : "The question could not be answered.",
+        charts: [],
+      })
     } finally {
-      setAsking(false)
+      setAskingThreadId(null)
     }
   }
 
@@ -586,6 +648,34 @@ export function Desk() {
       </main>
 
       <aside className="flex h-72 w-full shrink-0 flex-col border-t bg-card lg:h-full lg:w-80 lg:border-s lg:border-t-0">
+        <div className="flex shrink-0 items-center border-b">
+          <div
+            role="tablist"
+            aria-label="Chats"
+            className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 py-2"
+          >
+            {desk.threads.map((thread) => (
+              <ChatTab
+                key={thread.id}
+                thread={thread}
+                active={thread.id === desk.activeId}
+                tabRef={thread.id === desk.activeId ? activeTabRef : undefined}
+                onSelect={() => setDesk((current) => ({ ...current, activeId: thread.id }))}
+                onClose={() => closeThread(thread.id)}
+              />
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="New chat"
+            className="mr-1 shrink-0"
+            onClick={openThread}
+          >
+            <PlusIcon />
+          </Button>
+        </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <MessageScrollerProvider autoScroll>
             <MessageScroller>
@@ -618,7 +708,7 @@ export function Desk() {
                       </Message>
                     </MessageScrollerItem>
                   ))}
-                  {asking ? (
+                  {askingThreadId === activeThread?.id ? (
                     <MessageScrollerItem messageId="pending">
                       <Skeleton className="h-24 w-full" />
                     </MessageScrollerItem>
@@ -658,7 +748,7 @@ export function Desk() {
               variant="ghost"
               size="icon"
               aria-label="Send"
-              disabled={asking || question.trim().length === 0}
+              disabled={askingThreadId !== null || question.trim().length === 0}
               className="absolute right-2 bottom-2 bg-transparent hover:bg-transparent"
             >
               <SendIcon />
@@ -667,6 +757,48 @@ export function Desk() {
         </form>
       </aside>
       </div>
+    </div>
+  )
+}
+
+function ChatTab({
+  thread,
+  active,
+  tabRef,
+  onSelect,
+  onClose,
+}: {
+  thread: ChatThread
+  active: boolean
+  tabRef?: Ref<HTMLDivElement>
+  onSelect: () => void
+  onClose: () => void
+}) {
+  return (
+    <div
+      ref={tabRef}
+      className={cn(
+        "flex shrink-0 items-center rounded-[2px]",
+        active ? "bg-foreground text-primary-foreground" : "text-muted-foreground",
+      )}
+    >
+      <button
+        type="button"
+        role="tab"
+        aria-selected={active}
+        className="max-w-36 truncate px-2 py-1 text-sm"
+        onClick={onSelect}
+      >
+        {thread.title}
+      </button>
+      <button
+        type="button"
+        aria-label={`Close ${thread.title}`}
+        className="px-1 py-1"
+        onClick={onClose}
+      >
+        <XIcon className="size-3" />
+      </button>
     </div>
   )
 }
