@@ -269,14 +269,24 @@ function DataTable({ chart }: { chart: QuestionChart }) {
 
 function PlotPlaceholder() {
   return (
-    <svg viewBox="0 0 160 72" className="h-24 w-full text-foreground" aria-hidden>
-      <line x1="16" y1="8" x2="16" y2="60" stroke="currentColor" strokeWidth="1.5" />
-      <line x1="16" y1="60" x2="148" y2="60" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="28" y="36" width="14" height="24" fill="currentColor" />
-      <rect x="52" y="22" width="14" height="38" fill="currentColor" />
-      <rect x="76" y="30" width="14" height="30" fill="currentColor" />
-      <rect x="100" y="14" width="14" height="46" fill="currentColor" />
-      <rect x="124" y="26" width="14" height="34" fill="currentColor" />
+    <svg viewBox="0 0 320 108" className="text-foreground" aria-hidden>
+      <line x1="16" y1="22" x2="304" y2="22" stroke="currentColor" strokeOpacity="0.18" />
+      <line x1="16" y1="46" x2="304" y2="46" stroke="currentColor" strokeOpacity="0.18" />
+      <line x1="16" y1="70" x2="304" y2="70" stroke="currentColor" strokeOpacity="0.18" />
+      <path
+        d="M16 74 L44 58 L72 64 L100 42 L128 50 L156 30 L184 48 L212 36 L240 56 L268 40 L304 52 L304 86 L16 86 Z"
+        fill="currentColor"
+        fillOpacity="0.12"
+      />
+      <path
+        d="M16 74 L44 58 L72 64 L100 42 L128 50 L156 30 L184 48 L212 36 L240 56 L268 40 L304 52"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <line x1="16" y1="86" x2="304" y2="86" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   )
 }
@@ -292,7 +302,7 @@ function PlotDialog({ charts }: { charts: QuestionChart[] }) {
           key={`${chart.title}-${index}`}
           type="button"
           variant="outline"
-          className="group relative h-auto w-full rounded-[1rem] p-2"
+          className="group relative h-auto w-full rounded-[1rem] p-2 [&_svg]:!h-20 [&_svg]:!w-full [&_svg]:!max-w-none"
           onClick={() => {
             setTab(`plot-${index}`)
             setOpen(true)
@@ -721,13 +731,18 @@ export function Desk() {
           aria-valuemax={CHAT_MAX}
           aria-valuenow={Math.round(chatWidth)}
           tabIndex={0}
-          className="absolute inset-y-0 left-0 z-10 hidden w-2 -translate-x-1/2 cursor-col-resize touch-none lg:block hover:bg-foreground/15 focus-visible:bg-foreground/20"
+          className="group absolute inset-y-0 left-0 z-10 hidden w-3 -translate-x-1/2 cursor-col-resize touch-none items-center justify-center lg:flex"
           onPointerDown={onResizePointerDown}
           onPointerMove={onResizePointerMove}
           onPointerUp={onResizePointerUp}
           onPointerCancel={onResizePointerUp}
           onKeyDown={onResizeKeyDown}
-        />
+        >
+          <span
+            aria-hidden
+            className="h-8 w-1 rounded-full bg-foreground/35 group-hover:bg-foreground group-focus-visible:bg-foreground"
+          />
+        </div>
         <div className="flex shrink-0 items-end border-b border-border bg-background pt-1.5">
           <div
             role="tablist"
