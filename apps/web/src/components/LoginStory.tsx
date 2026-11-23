@@ -14,10 +14,8 @@ export function LoginStory() {
   return (
     <section className="flex h-full flex-col justify-between gap-10 bg-primary px-6 py-10 text-primary-foreground md:min-h-svh md:px-10 md:py-12">
       <div className="flex max-w-md flex-col gap-4">
-        <h2 className="text-[28px] leading-[1.14] tracking-[-0.022em]">The 2025 shipping book.</h2>
-        <p className="text-base text-primary-foreground/80">
-          400 stationery orders, nine carriers, nine warehouses, 1 Jan through 30 Dec.
-        </p>
+        <h2 className="text-[28px] leading-[1.14] tracking-[-0.022em]">Spaceship</h2>
+        <p className="text-base text-primary-foreground/80">The company desk for the lanes it ships.</p>
       </div>
       <div className="max-w-lg">
         <svg viewBox="0 0 480 48" className="w-full text-primary-foreground" aria-hidden>
