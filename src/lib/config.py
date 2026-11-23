@@ -4,6 +4,14 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def normalize_database_url(value: str) -> str:
+    if value.startswith("postgres://"):
+        return "postgresql+psycopg://" + value.removeprefix("postgres://")
+    if value.startswith("postgresql://"):
+        return "postgresql+psycopg://" + value.removeprefix("postgresql://")
+    return value
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -22,6 +30,11 @@ class Settings(BaseSettings):
     refresh_token_days: int = 7
     bootstrap_admin_email: str = ""
     bootstrap_admin_password: str = ""
+
+    @field_validator("database_url")
+    @classmethod
+    def database_url_driver(cls, value: str) -> str:
+        return normalize_database_url(value)
 
     @field_validator("jwt_secret")
     @classmethod

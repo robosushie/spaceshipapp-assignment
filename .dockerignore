@@ -1,0 +1,12 @@
+.git
+.venv
+**/node_modules
+**/.mypy_cache
+**/.ruff_cache
+**/.pytest_cache
+**/__pycache__
+**/dist
+.env
+*.tsbuildinfo
+playwright-report
+test-results

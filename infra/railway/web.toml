@@ -1,0 +1,20 @@
+# Bootstrap applies these settings with the Railway API.
+# A new service does not read this file.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "infra/docker/web.Dockerfile"
+watchPatterns = [
+  "apps/web/**",
+  "package.json",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+  "infra/docker/web.Dockerfile",
+  "infra/docker/nginx.conf.template",
+  "infra/docker/web-entrypoint.sh",
+  "infra/railway/web.toml",
+]
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 120

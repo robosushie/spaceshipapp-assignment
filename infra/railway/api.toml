@@ -1,0 +1,22 @@
+# Bootstrap applies these settings with the Railway API.
+# A new service does not read this file.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "infra/docker/api.Dockerfile"
+watchPatterns = [
+  "src/**",
+  "alembic/**",
+  "scripts/bootstrap/**",
+  "scripts/railway/release.py",
+  "pyproject.toml",
+  "uv.lock",
+  "infra/docker/api.Dockerfile",
+  "infra/railway/api.toml",
+]
+
+[deploy]
+preDeployCommand = ["python scripts/railway/release.py"]
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+startCommand = "python -m uvicorn src.main:app --host 0.0.0.0 --port $PORT"
