@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     cookie_secure: bool = False
     redis_url: str = ""
+    bootstrap_admin_email: str = ""
+    bootstrap_admin_password: str = ""
+    bootstrap_member_email: str = ""
+    bootstrap_member_password: str = ""
     access_token_minutes: int = 15
     refresh_token_days: int = 7
 

@@ -29,6 +29,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM: ${{ secrets.RESEND_FROM }}
+          BOOTSTRAP_ADMIN_EMAIL: ${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}
+          BOOTSTRAP_ADMIN_PASSWORD: ${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}
+          BOOTSTRAP_MEMBER_EMAIL: ${{ secrets.BOOTSTRAP_MEMBER_EMAIL }}
+          BOOTSTRAP_MEMBER_PASSWORD: ${{ secrets.BOOTSTRAP_MEMBER_PASSWORD }}
         run: uv run --no-project python scripts/railway/bootstrap.py
       - run: npm install -g @railway/cli
       - name: Deploy API

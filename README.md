@@ -4,6 +4,12 @@ Internal desk for the 2025 shipping book: 400 stationery orders, nine carriers, 
 
 The walkthrough is [docs/using.md](docs/using.md). Design, HTTP, sign-in, and architecture notes are in [docs/design.md](docs/design.md), [docs/api.md](docs/api.md), [docs/auth.md](docs/auth.md), and [docs/architecture.md](docs/architecture.md).
 
+## Architecture
+
+The desk calls one API. The API reads the book in Postgres. A question waits on Redis until the agent runs it, reads the same book, and asks Anthropic for the SQL and the reply. OpenAI names the chat tab, and Resend sends invite and reset mail. Those two are skipped when their keys are empty.
+
+<img src="docs/images/architecture.svg" alt="Desk calls the API, which reads Postgres. Questions go through Redis to the agent and Anthropic. OpenAI and Resend are optional calls from the API." width="920">
+
 ## The desk
 
 Sign in, then use the left rail. **Dashboard** is the summary. **Details** is the order table. **Settings** is your profile. **Agent**, at the bottom right, asks a question about the book.
@@ -18,13 +24,6 @@ Sign in, then use the left rail. **Dashboard** is the summary. **Details** is th
 
 <img src="docs/images/settings.png" alt="Settings" width="560">
 
-Two seeded accounts come with the book. An admin can invite someone else. A member cannot.
-
-| Email | Role | Password |
-| --- | --- | --- |
-| `admin@spaceship.test` | Admin | `spaceship_1234` |
-| `member@spaceship.test` | Member | `spaceship_1234` |
-
 ## Run locally
 
 ```bash
@@ -33,7 +32,7 @@ uv sync
 cp .env.example .env
 ```
 
-Put a `JWT_SECRET` of at least 32 bytes in `.env`. Postgres is published on port **54329** so it does not collide with anything already listening on 5432.
+Put a `JWT_SECRET` of at least 32 bytes in `.env`. Seed reads `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_PASSWORD`, `BOOTSTRAP_MEMBER_EMAIL`, and `BOOTSTRAP_MEMBER_PASSWORD` from that file. Passwords need at least 8 characters. Postgres is published on port **54329** so it does not collide with anything already listening on 5432.
 
 ```bash
 pnpm db:create
@@ -66,7 +65,7 @@ Actions → **deploy** → **Run workflow**, then choose the branch in **Use wor
 
 The API pre-deploy command applies pending Alembic revisions, then loads the shipping book only when `orders` is empty. A database that already has orders is left as it is.
 
-The Railway project must be named `spaceship`. Repository secrets `RAILWAY_TOKEN` and `JWT_SECRET` are required. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `RESEND_API_KEY`, and `RESEND_FROM` are optional. `RAILWAY_TOKEN` is an account or workspace token from [railway.com/account/tokens](https://railway.com/account/tokens). The workflow uses it to prepare the project, then mints a project token for the CLI upload. Leave `RAILWAY_WORKSPACE` unset unless more than one project is named spaceship.
+The Railway project must be named `spaceship`. That run writes `WEB_ORIGIN` on the API to the web service URL, which invite and reset links use. Repository secrets `RAILWAY_TOKEN`, `JWT_SECRET`, `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_PASSWORD`, `BOOTSTRAP_MEMBER_EMAIL`, and `BOOTSTRAP_MEMBER_PASSWORD` are required. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `RESEND_API_KEY`, and `RESEND_FROM` are optional. `RAILWAY_TOKEN` is an account or workspace token from [railway.com/account/tokens](https://railway.com/account/tokens). The workflow uses it to prepare the project, then mints a project token for the CLI upload. Leave `RAILWAY_WORKSPACE` unset unless more than one project is named spaceship.
 
 ## Scripts
 
@@ -76,7 +75,7 @@ The Railway project must be named `spaceship`. Repository secrets `RAILWAY_TOKEN
 | `pnpm db:create` | Start Postgres from `infra/compose/docker-compose.yml` |
 | `pnpm db:make -- "message"` | Alembic autogenerate |
 | `pnpm db:migrate` | `alembic upgrade head` |
-| `pnpm db:seed` | Load `scripts/bootstrap/data/*.json`, including the desk users |
+| `pnpm db:seed` | Load `scripts/bootstrap/data/*.json`, then the desk users from the environment |
 | `pnpm db:export` | Rebuild those JSON files from `docs/manuals/mock_logistics_data.csv` |
 
 Python checks: `uv run ruff check`, `uv run ruff format --check`, `uv run mypy`, `uv run pytest`.

@@ -174,7 +174,14 @@ def redis_start_command(password: str) -> str:
     return f"sh -c 'exec redis-server --requirepass {password} --bind 0.0.0.0 :: --port 6379'"
 
 
-def api_variables(env: Mapping[str, str]) -> dict[str, str]:
+def deployment_origin(domain: str) -> str:
+    if domain.startswith(("http://", "https://")):
+        return domain.rstrip("/")
+    return f"https://{domain}"
+
+
+def api_variables(env: Mapping[str, str], origin: str | None = None) -> dict[str, str]:
+    web_origin = origin or WEB_ORIGIN
     values = {
         "DATABASE_URL": "${{postgres.DATABASE_URL}}",
         "REDIS_URL": SHARED_REDIS_URL,
@@ -183,10 +190,19 @@ def api_variables(env: Mapping[str, str]) -> dict[str, str]:
         "JWT_ISSUER": "spaceship",
         "JWT_AUDIENCE": "spaceship-web",
         "COOKIE_SECURE": "true",
-        "WEB_ORIGIN": WEB_ORIGIN,
-        "CORS_ORIGINS": WEB_ORIGIN,
+        "WEB_ORIGIN": web_origin,
+        "CORS_ORIGINS": web_origin,
     }
     for name in OPTIONAL_SECRETS:
+        value = env.get(name, "").strip()
+        if value:
+            values[name] = value
+    for name in (
+        "BOOTSTRAP_ADMIN_EMAIL",
+        "BOOTSTRAP_ADMIN_PASSWORD",
+        "BOOTSTRAP_MEMBER_EMAIL",
+        "BOOTSTRAP_MEMBER_PASSWORD",
+    ):
         value = env.get(name, "").strip()
         if value:
             values[name] = value
@@ -733,7 +749,12 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
         },
     )
     domain = railway.domain(project_id, environment_id, web_id)
-    railway.upsert(project_id, environment_id, api_id, api_variables(source))
+    railway.upsert(
+        project_id,
+        environment_id,
+        api_id,
+        api_variables(source, deployment_origin(domain)),
+    )
     railway.upsert(project_id, environment_id, web_id, {"API_UPSTREAM": API_UPSTREAM})
     deploy_token = railway.project_deploy_token(project_id, environment_id)
     write_output(project_id, environment_id, domain, deploy_token)

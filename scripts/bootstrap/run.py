@@ -21,6 +21,7 @@ if str(ROOT) not in sys.path:
 
 from src.enums.identity import UserRole  # noqa: E402
 from src.enums.orders import OrderStatus  # noqa: E402
+from src.lib.config import get_settings  # noqa: E402
 from src.lib.db import engine  # noqa: E402
 from src.lib.security import hash_password  # noqa: E402
 from src.models.catalog.carrier import Carrier  # noqa: E402
@@ -99,12 +100,42 @@ def _money(value: object) -> Decimal:
     return Decimal(str(value))
 
 
-def _upsert_users(session: Session, rows: list[dict[str, object]]) -> None:
-    for row in rows:
-        email = normalize_email(str(row["email"]))
-        password_hash = hash_password(str(row["password"]))
-        role = UserRole(str(row["role"]))
-        name = str(row.get("name") or "")
+def _seed_users() -> list[tuple[str, str, UserRole, str]]:
+    settings = get_settings()
+    rows = (
+        (
+            "BOOTSTRAP_ADMIN_EMAIL",
+            "BOOTSTRAP_ADMIN_PASSWORD",
+            UserRole.admin,
+            "Admin",
+            settings.bootstrap_admin_email.strip(),
+            settings.bootstrap_admin_password,
+        ),
+        (
+            "BOOTSTRAP_MEMBER_EMAIL",
+            "BOOTSTRAP_MEMBER_PASSWORD",
+            UserRole.member,
+            "Member",
+            settings.bootstrap_member_email.strip(),
+            settings.bootstrap_member_password,
+        ),
+    )
+    missing = [
+        email_name if not email else password_name
+        for email_name, password_name, _role, _name, email, password in rows
+        if not email or len(password) < 8
+    ]
+    if missing:
+        raise SystemExit(f"Set {', '.join(missing)} before seeding. Passwords need 8 characters.")
+    return [
+        (normalize_email(email), password, role, name)
+        for _email_name, _password_name, role, name, email, password in rows
+    ]
+
+
+def _upsert_users(session: Session) -> None:
+    for email, password, role, name in _seed_users():
+        password_hash = hash_password(password)
         user = session.exec(select(User).where(User.email == email)).first()
         if user is None:
             session.add(User(email=email, name=name, password_hash=password_hash, role=role))
@@ -123,7 +154,6 @@ def load_json() -> None:
     carriers = _load_json("carriers.json")
     products = _load_json("products.json")
     orders = _load_json("orders.json")
-    users = _load_json("users.json")
     with Session(engine) as session:
         for row in clients:
             session.merge(Client(client_id=str(row["client_id"])))
@@ -159,7 +189,7 @@ def load_json() -> None:
                     promo_discount_pct=int(str(row["promo_discount_pct"])),
                 )
             )
-        _upsert_users(session, users)
+        _upsert_users(session)
         session.commit()
 
 

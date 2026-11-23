@@ -13,6 +13,7 @@ from scripts.railway.bootstrap import (
     agent_variables,
     api_variables,
     choose_workspace,
+    deployment_origin,
     edges,
     matching_projects,
     missing_postgres_variables,
@@ -111,6 +112,28 @@ def test_api_variables_include_a_present_model_key() -> None:
         "ANTHROPIC_API_KEY": "sk-test",
     }
     assert api_variables(env)["ANTHROPIC_API_KEY"] == "sk-test"
+
+
+def test_api_variables_use_the_deployment_url() -> None:
+    env = {"JWT_SECRET": "0123456789abcdef0123456789abcdef"}
+    values = api_variables(env, deployment_origin("desk.example"))
+    assert values["WEB_ORIGIN"] == "https://desk.example"
+    assert values["CORS_ORIGINS"] == "https://desk.example"
+
+
+def test_api_variables_include_seed_accounts_when_set() -> None:
+    env = {
+        "JWT_SECRET": "0123456789abcdef0123456789abcdef",
+        "BOOTSTRAP_ADMIN_EMAIL": "admin@spaceship.test",
+        "BOOTSTRAP_ADMIN_PASSWORD": "admin-pass",
+        "BOOTSTRAP_MEMBER_EMAIL": "member@spaceship.test",
+        "BOOTSTRAP_MEMBER_PASSWORD": "member-pass",
+    }
+    values = api_variables(env)
+    assert values["BOOTSTRAP_ADMIN_EMAIL"] == "admin@spaceship.test"
+    assert values["BOOTSTRAP_ADMIN_PASSWORD"] == "admin-pass"
+    assert values["BOOTSTRAP_MEMBER_EMAIL"] == "member@spaceship.test"
+    assert values["BOOTSTRAP_MEMBER_PASSWORD"] == "member-pass"
 
 
 def test_require_secrets_accepts_an_account_token() -> None:
