@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from scripts.railway.bootstrap import (
+    API_UPSTREAM,
     POSTGRES_DATA,
     POSTGRES_DATABASE_URL,
     REDIS_URL,
@@ -167,6 +168,10 @@ def test_several_workspaces_need_an_explicit_id() -> None:
     with pytest.raises(RailwayError, match="RAILWAY_WORKSPACE"):
         choose_workspace(workspaces, None)
     assert choose_workspace(workspaces, "two") == "two"
+
+
+def test_web_proxy_uses_the_api_public_domain() -> None:
+    assert API_UPSTREAM == "https://${{api.RAILWAY_PUBLIC_DOMAIN}}"
 
 
 def test_project_token_is_reused_for_the_cli() -> None:

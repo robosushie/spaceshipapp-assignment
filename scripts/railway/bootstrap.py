@@ -29,7 +29,7 @@ POSTGRES_DATABASE_URL = (
 API_START = "/app/scripts/railway/api-entrypoint.sh"
 AGENT_START = "/app/.venv/bin/python -m src.agent.worker"
 API_PORT = "8080"
-API_UPSTREAM = "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}"
+API_UPSTREAM = "https://${{api.RAILWAY_PUBLIC_DOMAIN}}"
 REDIS_IMAGE = "redis:7-alpine"
 REDIS_URL = "redis://:${{REDIS_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:6379/0"
 SHARED_REDIS_URL = "${{redis.REDIS_URL}}"
@@ -750,6 +750,7 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
             "healthcheckTimeout": 120,
         },
     )
+    railway.domain(project_id, environment_id, api_id)
     domain = railway.domain(project_id, environment_id, web_id)
     railway.upsert(
         project_id,
