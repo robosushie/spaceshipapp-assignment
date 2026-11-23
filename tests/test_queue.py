@@ -75,8 +75,8 @@ def test_worker_builds_the_graph_answer(monkeypatch: pytest.MonkeyPatch) -> None
         def __enter__(self) -> object:
             return object()
 
-        def __exit__(self, *_args: object) -> bool:
-            return False
+        def __exit__(self, *_args: object) -> None:
+            return None
 
     monkeypatch.setattr("src.agent.worker.Session", lambda _engine: Opened())
 

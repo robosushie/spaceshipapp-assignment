@@ -36,7 +36,7 @@ def chat_title(message: str) -> str:
         )
         response.raise_for_status()
         title = _clean(_content(response.json()), message)
-    except (httpx.HTTPError, ValueError, KeyError, TypeError):
+    except httpx.HTTPError, ValueError, KeyError, TypeError:
         logger.exception("chat title failed")
         return message
     return title

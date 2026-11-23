@@ -59,9 +59,7 @@ def run_select(session: Session, sql: str) -> list[dict[str, str]]:
         session.execute(text("SET LOCAL transaction_read_only = on"))
         session.execute(text(f"EXPLAIN {safe}"))
         result = session.execute(text(wrapped))
-        return [
-            {str(key): _cell(value) for key, value in row.items()} for row in result.mappings()
-        ]
+        return [{str(key): _cell(value) for key, value in row.items()} for row in result.mappings()]
     except SqlRejected:
         raise
     except Exception as exc:

@@ -171,10 +171,7 @@ def missing_redis_variables(existing: Mapping[str, str]) -> dict[str, str]:
 
 
 def redis_start_command(password: str) -> str:
-    return (
-        "sh -c 'exec redis-server --requirepass "
-        f"{password} --bind 0.0.0.0 :: --port 6379'"
-    )
+    return f"sh -c 'exec redis-server --requirepass {password} --bind 0.0.0.0 :: --port 6379'"
 
 
 def api_variables(env: Mapping[str, str]) -> dict[str, str]:
