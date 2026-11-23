@@ -21,7 +21,6 @@ if str(ROOT) not in sys.path:
 
 from src.enums.identity import UserRole  # noqa: E402
 from src.enums.orders import OrderStatus  # noqa: E402
-from src.lib.config import get_settings  # noqa: E402
 from src.lib.db import engine  # noqa: E402
 from src.lib.security import hash_password  # noqa: E402
 from src.models.catalog.carrier import Carrier  # noqa: E402
@@ -118,25 +117,6 @@ def _upsert_users(session: Session, rows: list[dict[str, object]]) -> None:
         session.add(user)
 
 
-def _upsert_admin(session: Session) -> None:
-    settings = get_settings()
-    email = settings.bootstrap_admin_email.strip()
-    password = settings.bootstrap_admin_password
-    if not email or not password:
-        raise SystemExit("BOOTSTRAP_ADMIN_EMAIL and BOOTSTRAP_ADMIN_PASSWORD are required to load")
-    normalized = normalize_email(email)
-    user = session.exec(select(User).where(User.email == normalized)).first()
-    password_hash = hash_password(password)
-    if user is None:
-        session.add(
-            User(email=normalized, name="Admin", password_hash=password_hash, role=UserRole.admin)
-        )
-    else:
-        user.password_hash = password_hash
-        user.role = UserRole.admin
-        session.add(user)
-
-
 def load_json() -> None:
     clients = _load_json("clients.json")
     warehouses = _load_json("warehouses.json")
@@ -180,7 +160,6 @@ def load_json() -> None:
                 )
             )
         _upsert_users(session, users)
-        _upsert_admin(session)
         session.commit()
 
 

@@ -9,6 +9,11 @@ export class ApiError extends Error {
 
 let accessToken: string | null = null
 
+export function apiUrl(path: string, base = import.meta.env.API_BASE_URL): string {
+  const trimmed = (base ?? "").replace(/\/$/, "")
+  return `${trimmed}${path}`
+}
+
 export function setAccessToken(token: string | null): void {
   accessToken = token
 }
@@ -34,14 +39,14 @@ export async function api<T>(path: string, init?: RequestInit, retry = true): Pr
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json")
   }
-  const response = await fetch(path, {
+  const response = await fetch(apiUrl(path), {
     ...init,
     headers,
     credentials: "include",
   })
   const isAuth = path.startsWith("/v1/auth/")
   if (response.status === 401 && retry && !isAuth) {
-    const refreshed = await fetch("/v1/auth/refresh", {
+    const refreshed = await fetch(apiUrl("/v1/auth/refresh"), {
       method: "POST",
       credentials: "include",
     })

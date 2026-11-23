@@ -38,12 +38,12 @@ def test_postgres_variables_fill_a_new_database() -> None:
 def test_api_variables_skip_an_empty_optional_key() -> None:
     env = {
         "JWT_SECRET": "0123456789abcdef0123456789abcdef",
-        "BOOTSTRAP_ADMIN_EMAIL": "admin@spaceship.local",
-        "BOOTSTRAP_ADMIN_PASSWORD": "change-me",
         "ANTHROPIC_API_KEY": "",
     }
     values = api_variables(env)
     assert "ANTHROPIC_API_KEY" not in values
+    assert "BOOTSTRAP_ADMIN_EMAIL" not in values
+    assert "BOOTSTRAP_ADMIN_PASSWORD" not in values
     assert values["DATABASE_URL"] == "${{postgres.DATABASE_URL}}"
     assert values["COOKIE_SECURE"] == "true"
 
@@ -51,8 +51,6 @@ def test_api_variables_skip_an_empty_optional_key() -> None:
 def test_api_variables_include_a_present_model_key() -> None:
     env = {
         "JWT_SECRET": "0123456789abcdef0123456789abcdef",
-        "BOOTSTRAP_ADMIN_EMAIL": "admin@spaceship.local",
-        "BOOTSTRAP_ADMIN_PASSWORD": "change-me",
         "ANTHROPIC_API_KEY": "sk-test",
     }
     assert api_variables(env)["ANTHROPIC_API_KEY"] == "sk-test"
@@ -63,8 +61,6 @@ def test_require_secrets_accepts_an_account_token() -> None:
         {
             "RAILWAY_API_TOKEN": "account-token",
             "JWT_SECRET": "0123456789abcdef0123456789abcdef",
-            "BOOTSTRAP_ADMIN_EMAIL": "admin@spaceship.local",
-            "BOOTSTRAP_ADMIN_PASSWORD": "change-me",
         }
     )
 
@@ -75,8 +71,6 @@ def test_require_secrets_rejects_a_short_jwt() -> None:
             {
                 "RAILWAY_TOKEN": "token",
                 "JWT_SECRET": "short",
-                "BOOTSTRAP_ADMIN_EMAIL": "admin@spaceship.local",
-                "BOOTSTRAP_ADMIN_PASSWORD": "change-me",
             }
         )
 

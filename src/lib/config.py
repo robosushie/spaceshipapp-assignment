@@ -28,8 +28,6 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     access_token_minutes: int = 15
     refresh_token_days: int = 7
-    bootstrap_admin_email: str = ""
-    bootstrap_admin_password: str = ""
 
     @field_validator("database_url")
     @classmethod

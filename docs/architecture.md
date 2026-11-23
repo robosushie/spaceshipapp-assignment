@@ -90,7 +90,7 @@ Order status is a Postgres enum: `delivered`, `delayed`, `in_transit`, `exceptio
 | `pnpm db:create` | Starts Postgres from `infra/compose/docker-compose.yml`. The host port is 54329. |
 | `pnpm db:make -- "message"` | Alembic autogenerate. |
 | `pnpm db:migrate` | `alembic upgrade head`. |
-| `pnpm db:seed` | Loads `scripts/bootstrap/data/*.json`, then upserts the admin user. |
+| `pnpm db:seed` | Loads `scripts/bootstrap/data/*.json`, including the desk users. |
 
 Docker runs Postgres only. The API and the web app run on the host. There is no application image.
 

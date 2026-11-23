@@ -4,7 +4,7 @@ Spaceship has two kinds of identity, and they are not the same thing.
 
 The shipping book has clients (`CL-1023`). Those are accounts the company ships for. They do not log in.
 
-People who use the desk are `users`. The seeded account comes from `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` and stays `admin`. The role is `admin` or `member`. Both roles can read every order, the metrics, and ask questions. There is no per-order ownership and no organisation. A valid token is enough for every row in the book.
+People who use the desk are `users`. `pnpm db:seed` loads them from `scripts/bootstrap/data/users.json`: `admin@spaceship.test` is an admin and `member@spaceship.test` is a member. Both roles can read every order, the metrics, and ask questions. There is no per-order ownership and no organisation. A valid token is enough for every row in the book.
 
 Only an admin can invite. `POST /v1/invites` stores the person with a password they cannot use and a hashed one-time token that expires in 7 days. Resend sends the raw token once, inside a link to `/accept-invite`. The API response does not include it. `POST /v1/invites/accept` sets the password and clears the token. Until a sending domain is verified, `onboarding@resend.dev` only delivers to the address on the Resend account.
 

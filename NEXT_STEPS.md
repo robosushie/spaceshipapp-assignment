@@ -11,7 +11,7 @@
 - Postgres compose on port 54329 — up, migrated, 400 orders seeded
 - Desk in the browser — sign-in, status counts, next page, delayed filter (55 orders), ask without an Anthropic key (503 message)
 
-Playwright (`pnpm --filter web test:e2e`) is not in CI. Run it locally with `pnpm dev` already up and the bootstrap admin variables exported.
+Playwright (`pnpm --filter web test:e2e`) is not in CI. Run it locally with `pnpm dev` already up and the database seeded.
 
 ## You still fill in
 
@@ -21,4 +21,4 @@ Playwright (`pnpm --filter web test:e2e`) is not in CI. Run it locally with `pnp
 
 ## Local run
 
-From the repo root: `pnpm install`, `uv sync`, `pnpm db:create`, `pnpm db:migrate`, `pnpm db:seed`, `pnpm dev`. Sign in with `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` from `.env`. If port 5173 is already taken, Vite prints the port it chose.
+From the repo root: `pnpm install`, `uv sync`, `pnpm db:create`, `pnpm db:migrate`, `pnpm db:seed`, `pnpm dev`. Sign in as `admin@spaceship.test` with password `spaceship_1234`. If port 5173 is already taken, Vite prints the port it chose.

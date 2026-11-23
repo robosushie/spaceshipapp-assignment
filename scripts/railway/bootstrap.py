@@ -26,11 +26,7 @@ POSTGRES_DATABASE_URL = (
 )
 API_UPSTREAM = "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}"
 WEB_ORIGIN = "https://${{web.RAILWAY_PUBLIC_DOMAIN}}"
-REQUIRED_SECRETS = (
-    "JWT_SECRET",
-    "BOOTSTRAP_ADMIN_EMAIL",
-    "BOOTSTRAP_ADMIN_PASSWORD",
-)
+REQUIRED_SECRETS = ("JWT_SECRET",)
 OPTIONAL_SECRETS = (
     "ANTHROPIC_API_KEY",
     "OPENAI_API_KEY",
@@ -132,8 +128,6 @@ def api_variables(env: Mapping[str, str]) -> dict[str, str]:
         "COOKIE_SECURE": "true",
         "WEB_ORIGIN": WEB_ORIGIN,
         "CORS_ORIGINS": WEB_ORIGIN,
-        "BOOTSTRAP_ADMIN_EMAIL": env["BOOTSTRAP_ADMIN_EMAIL"],
-        "BOOTSTRAP_ADMIN_PASSWORD": env["BOOTSTRAP_ADMIN_PASSWORD"],
     }
     for name in OPTIONAL_SECRETS:
         value = env.get(name, "").strip()
