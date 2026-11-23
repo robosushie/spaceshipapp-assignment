@@ -9,9 +9,10 @@ import { loadChats, saveChats, type ChatDesk } from "@/lib/chats"
 import { cn } from "@/lib/utils"
 
 const CHAT_WIDTH_KEY = "spaceship-chat-width"
-const CHAT_DEFAULT = 320
+const CHAT_DEFAULT = 480
 const CHAT_MIN = 220
 const CHAT_MAX = 720
+const CHAT_PREVIOUS_DEFAULT = 320
 
 function clampChatWidth(value: number, viewport: number): number {
   const max = Math.min(CHAT_MAX, Math.round(viewport * 0.7))
@@ -23,7 +24,7 @@ function loadChatWidth(): number {
     return CHAT_DEFAULT
   }
   const stored = Number(localStorage.getItem(CHAT_WIDTH_KEY))
-  if (!Number.isFinite(stored)) {
+  if (!Number.isFinite(stored) || stored === CHAT_PREVIOUS_DEFAULT) {
     return CHAT_DEFAULT
   }
   return clampChatWidth(stored, window.innerWidth)
