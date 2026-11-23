@@ -51,7 +51,7 @@ Operators depend on the column. Text can contain or equal. Dates can be on, befo
 
 ![Agent](images/agent.png)
 
-Ask one question in plain language, then send it. Examples that match the book:
+Ask questions in plain language, then send one. Examples that match the book:
 
 - How many orders were delayed?
 - Which carrier delivered the most in the UK?

@@ -315,7 +315,7 @@ export function AgentPanel({
               <MessageScrollerContent className="px-4 py-4">
                 {messages.length === 0 ? (
                   <MessageScrollerItem messageId="empty">
-                    <p className="text-muted-foreground">One question about this book</p>
+                    <p className="text-muted-foreground">Ask questions about this book</p>
                   </MessageScrollerItem>
                 ) : null}
                 {messages.map((message) => (
