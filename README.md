@@ -29,7 +29,7 @@ pnpm dev
 
 ## Deploy
 
-Pushing `main` deploys after the checks pass. The same deploy can be started by hand: Actions → **ci** → **Run workflow**, with the branch set to `main`.
+Actions → **deploy** → **Run workflow**, then choose the branch in **Use workflow from**. That run creates Postgres, the API, and the web service if they are missing, then uploads the API and web images from the selected branch. `ci` does not deploy.
 
 The API pre-deploy command applies pending Alembic revisions, then loads the shipping book only when `orders` is empty. A database that already has orders is left as it is.
 
