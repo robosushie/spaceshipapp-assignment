@@ -560,6 +560,26 @@ class Railway:
             raise RailwayError("serviceDomainCreate returned no domain")
         return cast(str, domain["domain"])
 
+    def project_deploy_token(self, project_id: str, environment_id: str) -> str:
+        created = self.gql(
+            """
+            mutation projectTokenCreate($input: ProjectTokenCreateInput!) {
+              projectTokenCreate(input: $input)
+            }
+            """,
+            {
+                "input": {
+                    "projectId": project_id,
+                    "environmentId": environment_id,
+                    "name": f"github-deploy-{secrets.token_hex(4)}",
+                }
+            },
+        )
+        token = created.get("projectTokenCreate")
+        if not isinstance(token, str) or not token.strip():
+            raise RailwayError("projectTokenCreate returned no token")
+        return token
+
 
 def wait_for_service(
     railway: Railway,
@@ -592,10 +612,12 @@ def wait_for_service(
     raise RailwayError(f"{service_name} deployment timed out")
 
 
-def write_output(project_id: str, environment_id: str, domain: str) -> None:
+def write_output(project_id: str, environment_id: str, domain: str, deploy_token: str) -> None:
     print(f"project_id={project_id}")
     print(f"environment_id={environment_id}")
     print(f"web_url=https://{domain}")
+    # The CLI refuses a workspace token. Mask the project token before it can be logged.
+    print(f"::add-mask::{deploy_token}")
     output = os.environ.get("GITHUB_OUTPUT")
     if not output:
         return
@@ -603,6 +625,7 @@ def write_output(project_id: str, environment_id: str, domain: str) -> None:
         handle.write(f"project_id={project_id}\n")
         handle.write(f"environment_id={environment_id}\n")
         handle.write(f"web_domain={domain}\n")
+        handle.write(f"deploy_token={deploy_token}\n")
 
 
 def bootstrap(env: Mapping[str, str] | None = None) -> None:
@@ -712,7 +735,8 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
     domain = railway.domain(project_id, environment_id, web_id)
     railway.upsert(project_id, environment_id, api_id, api_variables(source))
     railway.upsert(project_id, environment_id, web_id, {"API_UPSTREAM": API_UPSTREAM})
-    write_output(project_id, environment_id, domain)
+    deploy_token = railway.project_deploy_token(project_id, environment_id)
+    write_output(project_id, environment_id, domain, deploy_token)
 
 
 def main() -> None:

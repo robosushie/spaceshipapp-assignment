@@ -21,6 +21,7 @@ from scripts.railway.bootstrap import (
     require_secrets,
     unauthorized,
     workspace_records,
+    write_output,
 )
 from scripts.railway.release import should_seed
 
@@ -166,6 +167,18 @@ def test_duplicate_project_names_are_visible() -> None:
 def test_edges_read_graphql_nodes() -> None:
     payload = {"project": {"volumes": {"edges": [{"node": {"id": "vol", "name": "data"}}]}}}
     assert edges(payload, "project", "volumes", "edges") == [{"id": "vol", "name": "data"}]
+
+
+def test_write_output_masks_the_deploy_token(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "github_output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+    write_output("project", "environment", "desk.example", "secret-token")
+    written = output.read_text(encoding="utf-8")
+    assert "deploy_token=secret-token" in written
+    assert "project_id=project" in written
 
 
 def test_postgres_deploys_when_missing_or_failed() -> None:
