@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ApiError, api } from "@/lib/api"
-import { emptyThread, type ChatDesk, type ChatMessage, type ChatThread } from "@/lib/chats"
+import { chatText, emptyThread, type ChatDesk, type ChatMessage, type ChatThread } from "@/lib/chats"
 import { cn } from "@/lib/utils"
 import type { QuestionChart, QuestionResult } from "@/types/desk"
 
@@ -332,7 +332,7 @@ export function AgentPanel({
                           className="max-w-[85%]"
                         >
                           <BubbleContent className="rounded-2xl px-3 py-2 text-sm">
-                            {message.text}
+                            {chatText(message.text)}
                           </BubbleContent>
                         </Bubble>
                         {message.charts.length > 0 ? <PlotDialog charts={message.charts} /> : null}
@@ -447,6 +447,71 @@ const PIE_FILLS = [
   "var(--foreground)",
 ]
 
+const MONTH = /^(\d{4})-(\d{2})$/
+
+function nextMonth(label: string): string {
+  const match = MONTH.exec(label)
+  if (!match) {
+    return label
+  }
+  const year = Number(match[1])
+  const month = Number(match[2])
+  if (month === 12) {
+    return `${year + 1}-01`
+  }
+  return `${year}-${String(month + 1).padStart(2, "0")}`
+}
+
+function completeChartRows(chart: QuestionChart): Record<string, string>[] {
+  const rows = chart.rows.map((row) => ({ ...row }))
+  if (chart.type !== "line" || rows.length === 0) {
+    return rows
+  }
+  if (!rows.every((row) => MONTH.test(row[chart.x_key] ?? ""))) {
+    return rows
+  }
+  const byMonth = new Map(rows.map((row) => [row[chart.x_key], row]))
+  const labels = [...byMonth.keys()].toSorted()
+  const filled: Record<string, string>[] = []
+  let cursor = labels[0]
+  const end = labels[labels.length - 1]
+  const forecast = chart.y_keys.includes("forecast")
+  const historyEnd = forecast
+    ? rows.reduce<string | null>((latest, row) => {
+        const value = row.history
+        return value !== undefined && value !== "" ? row[chart.x_key] : latest
+      }, null)
+    : null
+  while (filled.length < 240) {
+    const existing = byMonth.get(cursor)
+    if (existing) {
+      filled.push(existing)
+    } else if (forecast && historyEnd !== null && cursor <= historyEnd) {
+      filled.push({ [chart.x_key]: cursor, history: "0", forecast: "" })
+    } else if (forecast) {
+      filled.push({ [chart.x_key]: cursor, history: "", forecast: "" })
+    } else {
+      const blank: Record<string, string> = { [chart.x_key]: cursor }
+      for (const key of chart.y_keys) {
+        blank[key] = "0"
+      }
+      filled.push(blank)
+    }
+    if (cursor === end) {
+      break
+    }
+    cursor = nextMonth(cursor)
+  }
+  if (!forecast || historyEnd === null) {
+    return filled
+  }
+  const joined = filled.find((row) => row[chart.x_key] === historyEnd)
+  if (joined && (joined.forecast === undefined || joined.forecast === "")) {
+    joined.forecast = joined.history
+  }
+  return filled
+}
+
 function Plot({ chart, className }: { chart: QuestionChart; className?: string }) {
   const frame = cn("aspect-auto w-full", className)
   if (chart.type === "pie") {
@@ -503,7 +568,8 @@ function Plot({ chart, className }: { chart: QuestionChart; className?: string }
       </ChartContainer>
     )
   }
-  const data = chart.rows.map((row) => {
+  const rows = completeChartRows(chart)
+  const data = rows.map((row) => {
     const point: Record<string, string | number | null> = { ...row }
     for (const key of chart.y_keys) {
       const raw = row[key]
@@ -515,7 +581,7 @@ function Plot({ chart, className }: { chart: QuestionChart; className?: string }
   const config = Object.fromEntries(
     chart.y_keys.map((key) => [key, { label: columnLabel(key), color: lineColor(key) }]),
   )
-  const interval = chart.rows.length > 8 ? "preserveStartEnd" : 0
+  const interval = rows.length > 8 ? "preserveStartEnd" : 0
   if (chart.type === "line") {
     return (
       <ChartContainer config={config} className={frame}>
@@ -591,6 +657,7 @@ function columnLabel(key: string): string {
 
 function DataTable({ chart }: { chart: QuestionChart }) {
   const columns = chartColumns(chart)
+  const rows = chart.type === "line" ? completeChartRows(chart) : chart.rows
   return (
     <Table>
       <TableHeader>
@@ -601,7 +668,7 @@ function DataTable({ chart }: { chart: QuestionChart }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {chart.rows.map((row, index) => (
+        {rows.map((row, index) => (
           <TableRow key={`${row[chart.x_key]}-${index}`}>
             {columns.map((column) => (
               <TableCell key={column}>{row[column] ?? ""}</TableCell>

@@ -111,10 +111,10 @@ function parseMessage(value: unknown): ChatMessage | null {
     return null
   }
   const charts = Array.isArray(record.charts) ? record.charts.filter(isChart) : []
-  return { id: record.id, role: record.role, text: visibleText(record.text), charts }
+  return { id: record.id, role: record.role, text: chatText(record.text), charts }
 }
 
-function visibleText(text: string): string {
+export function chatText(text: string): string {
   return text
     .split(RETIRED_METHOD_NOTE)
     .join("")
