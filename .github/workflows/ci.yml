@@ -3,6 +3,7 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   commits:
@@ -25,7 +26,7 @@ jobs:
         env:
           COMMIT_FROM: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: |
-          if [ "$COMMIT_FROM" = "0000000000000000000000000000000000000000" ]; then
+          if [ -z "$COMMIT_FROM" ] || [ "$COMMIT_FROM" = "0000000000000000000000000000000000000000" ]; then
             pnpm exec commitlint --from HEAD~1 --to HEAD --verbose
           else
             pnpm exec commitlint --from "$COMMIT_FROM" --to HEAD --verbose
@@ -83,7 +84,7 @@ jobs:
 
   deploy:
     needs: [commits, api, web]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

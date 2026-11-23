@@ -27,6 +27,14 @@ pnpm dev
 
 `POST /v1/questions` returns 503 until `ANTHROPIC_API_KEY` is set. The rest of the desk works without it.
 
+## Deploy
+
+Pushing `main` deploys after the checks pass. The same deploy can be started by hand: Actions → **ci** → **Run workflow**, with the branch set to `main`.
+
+The API pre-deploy command applies pending Alembic revisions, then loads the shipping book only when `orders` is empty. A database that already has orders is left as it is.
+
+The Railway project must be named `spaceship`. Repository secrets `RAILWAY_TOKEN` and `JWT_SECRET` are required. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `RESEND_API_KEY`, and `RESEND_FROM` are optional.
+
 ## Scripts
 
 | Script | What it does |
