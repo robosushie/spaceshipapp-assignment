@@ -62,19 +62,11 @@ export function DeskFrame() {
   }
 
   return (
-    <div className="flex h-svh overflow-hidden">
-      <Rail
-        current={current}
-        agent={<AgentButton open={open} onClick={toggle} className="flex-col gap-0.5" />}
-      />
+    <div className="relative flex h-svh overflow-hidden">
+      <Rail current={current} />
       <div className="min-h-0 min-w-0 flex-1 pb-16 md:pb-0">
         <Outlet />
       </div>
-      <AgentButton
-        open={open}
-        onClick={toggle}
-        className="fixed bottom-2 left-1 z-40 hidden w-14 flex-col gap-0.5 md:inline-flex"
-      />
       {open ? (
         <AgentPanel
           width={chatWidth}
@@ -84,6 +76,11 @@ export function DeskFrame() {
           setDesk={setDesk}
         />
       ) : null}
+      <AgentButton
+        open={open}
+        onClick={toggle}
+        className="absolute right-4 bottom-20 z-30 md:bottom-6"
+      />
     </div>
   )
 }
@@ -100,13 +97,13 @@ function AgentButton({
   return (
     <Button
       type="button"
-      variant={open ? "secondary" : "ghost"}
+      variant={open ? "secondary" : "default"}
       aria-expanded={open}
       aria-controls="agent-panel"
       onClick={onClick}
-      className={cn("h-auto px-1 py-1 text-[11px] leading-none", className)}
+      className={cn("gap-2 px-4 shadow-md", className)}
     >
-      <BotIcon className="size-5" />
+      <BotIcon />
       Agent
     </Button>
   )

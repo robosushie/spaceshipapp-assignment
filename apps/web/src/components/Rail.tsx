@@ -4,11 +4,10 @@ import { Link } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
-import { cn } from "@/lib/utils"
 
 type RailPage = "dashboard" | "details" | "settings"
 
-export function Rail({ current, agent }: { current: RailPage; agent?: ReactNode }) {
+export function Rail({ current }: { current: RailPage }) {
   const { signOut } = useAuth()
 
   const links = (
@@ -43,10 +42,7 @@ export function Rail({ current, agent }: { current: RailPage; agent?: ReactNode 
     <>
       <nav
         aria-label="Desk"
-        className={cn(
-          "hidden h-full w-16 shrink-0 flex-col items-center gap-1 border-e bg-card py-3 md:flex",
-          agent && "pb-16",
-        )}
+        className="hidden h-full w-16 shrink-0 flex-col items-center gap-1 border-e bg-card py-3 md:flex"
       >
         <div className="mb-3 flex size-10 items-center justify-center text-foreground">
           <RocketIcon className="size-6" aria-hidden />
@@ -59,7 +55,6 @@ export function Rail({ current, agent }: { current: RailPage; agent?: ReactNode 
         aria-label="Desk"
         className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t bg-card px-1 md:hidden"
       >
-        {agent}
         {links}
         {account}
       </nav>

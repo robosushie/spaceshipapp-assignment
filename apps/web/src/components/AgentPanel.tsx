@@ -287,26 +287,26 @@ export function AgentPanel({
             />
           ))}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Close agent"
-          className="mb-1 shrink-0 md:hidden"
-          onClick={onClose}
-        >
-          <XIcon />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          aria-label="New chat"
-          className="mb-1 mr-1 shrink-0"
-          onClick={openThread}
-        >
-          <PlusIcon />
-        </Button>
+        <div className="mb-1 mr-1 flex shrink-0 items-center">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="New chat"
+            onClick={openThread}
+          >
+            <PlusIcon />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Close agent"
+            onClick={onClose}
+          >
+            <XIcon />
+          </Button>
+        </div>
       </div>
       <div className="flex min-h-0 flex-1 flex-col">
         <MessageScrollerProvider autoScroll>
