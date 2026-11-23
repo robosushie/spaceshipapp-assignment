@@ -16,6 +16,7 @@ from collections.abc import Mapping, Sequence
 from typing import cast
 
 ENDPOINT = "https://backboard.railway.com/graphql/v2"
+USER_AGENT = "Mozilla/5.0 (compatible; spaceship-deploy/1.0)"
 PROJECT_NAME = "spaceship"
 ENVIRONMENT_NAME = "production"
 POSTGRES_IMAGE = "postgres:17"
@@ -152,6 +153,7 @@ class Railway:
             headers={
                 "Authorization": f"Bearer {self._token}",
                 "Content-Type": "application/json",
+                "User-Agent": USER_AGENT,
             },
             method="POST",
         )
