@@ -35,6 +35,10 @@ jobs:
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: railway up --service api --project "${{ steps.railway.outputs.project_id }}" --environment production --ci
+      - name: Deploy agent
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service agent --project "${{ steps.railway.outputs.project_id }}" --environment production --ci
       - name: Deploy web
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

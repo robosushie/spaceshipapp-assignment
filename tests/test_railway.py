@@ -7,12 +7,16 @@ import pytest
 from scripts.railway.bootstrap import (
     POSTGRES_DATA,
     POSTGRES_DATABASE_URL,
+    REDIS_URL,
+    SHARED_REDIS_URL,
     RailwayError,
+    agent_variables,
     api_variables,
     choose_workspace,
     edges,
     matching_projects,
     missing_postgres_variables,
+    missing_redis_variables,
     needs_postgres_deploy,
     require_secrets,
     unauthorized,
@@ -71,7 +75,33 @@ def test_api_variables_skip_an_empty_optional_key() -> None:
     assert "BOOTSTRAP_ADMIN_EMAIL" not in values
     assert "BOOTSTRAP_ADMIN_PASSWORD" not in values
     assert values["DATABASE_URL"] == "${{postgres.DATABASE_URL}}"
+    assert values["REDIS_URL"] == SHARED_REDIS_URL
+    assert values["PORT"] == "8080"
     assert values["COOKIE_SECURE"] == "true"
+
+
+def test_redis_variables_keep_an_existing_password() -> None:
+    existing = {"REDIS_PASSWORD": "already-set", "REDIS_URL": REDIS_URL}
+    assert missing_redis_variables(existing) == {}
+
+
+def test_redis_variables_fill_a_new_queue() -> None:
+    updates = missing_redis_variables({})
+    assert updates["REDIS_URL"] == REDIS_URL
+    assert len(updates["REDIS_PASSWORD"]) >= 24
+
+
+def test_agent_variables_include_the_queue_and_a_model_key() -> None:
+    env = {
+        "JWT_SECRET": "0123456789abcdef0123456789abcdef",
+        "ANTHROPIC_API_KEY": "sk-test",
+        "OPENAI_API_KEY": "",
+    }
+    values = agent_variables(env)
+    assert values["DATABASE_URL"] == "${{postgres.DATABASE_URL}}"
+    assert values["REDIS_URL"] == SHARED_REDIS_URL
+    assert values["ANTHROPIC_API_KEY"] == "sk-test"
+    assert "OPENAI_API_KEY" not in values
 
 
 def test_api_variables_include_a_present_model_key() -> None:

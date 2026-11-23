@@ -27,7 +27,12 @@ POSTGRES_DATABASE_URL = (
     "@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{POSTGRES_DB}}"
 )
 API_START = "/app/scripts/railway/api-entrypoint.sh"
+AGENT_START = "/app/.venv/bin/python -m src.agent.worker"
+API_PORT = "8080"
 API_UPSTREAM = "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}"
+REDIS_IMAGE = "redis:7-alpine"
+REDIS_URL = "redis://:${{REDIS_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:6379/0"
+SHARED_REDIS_URL = "${{redis.REDIS_URL}}"
 WEB_ORIGIN = "https://${{web.RAILWAY_PUBLIC_DOMAIN}}"
 REQUIRED_SECRETS = ("JWT_SECRET",)
 OPTIONAL_SECRETS = (
@@ -156,9 +161,27 @@ def missing_postgres_variables(existing: Mapping[str, str]) -> dict[str, str]:
     return updates
 
 
+def missing_redis_variables(existing: Mapping[str, str]) -> dict[str, str]:
+    updates: dict[str, str] = {}
+    if "REDIS_PASSWORD" not in existing:
+        updates["REDIS_PASSWORD"] = secrets.token_hex(24)
+    if existing.get("REDIS_URL") != REDIS_URL:
+        updates["REDIS_URL"] = REDIS_URL
+    return updates
+
+
+def redis_start_command(password: str) -> str:
+    return (
+        "sh -c 'exec redis-server --requirepass "
+        f"{password} --bind 0.0.0.0 :: --port 6379'"
+    )
+
+
 def api_variables(env: Mapping[str, str]) -> dict[str, str]:
     values = {
         "DATABASE_URL": "${{postgres.DATABASE_URL}}",
+        "REDIS_URL": SHARED_REDIS_URL,
+        "PORT": API_PORT,
         "JWT_SECRET": env["JWT_SECRET"],
         "JWT_ISSUER": "spaceship",
         "JWT_AUDIENCE": "spaceship-web",
@@ -167,6 +190,19 @@ def api_variables(env: Mapping[str, str]) -> dict[str, str]:
         "CORS_ORIGINS": WEB_ORIGIN,
     }
     for name in OPTIONAL_SECRETS:
+        value = env.get(name, "").strip()
+        if value:
+            values[name] = value
+    return values
+
+
+def agent_variables(env: Mapping[str, str]) -> dict[str, str]:
+    values = {
+        "DATABASE_URL": "${{postgres.DATABASE_URL}}",
+        "REDIS_URL": SHARED_REDIS_URL,
+        "JWT_SECRET": env["JWT_SECRET"],
+    }
+    for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY"):
         value = env.get(name, "").strip()
         if value:
             values[name] = value
@@ -528,10 +564,11 @@ class Railway:
         return cast(str, domain["domain"])
 
 
-def wait_for_postgres(
+def wait_for_service(
     railway: Railway,
     environment_id: str,
     service_id: str,
+    service_name: str,
     *,
     redeploy: bool,
 ) -> None:
@@ -542,7 +579,7 @@ def wait_for_postgres(
         triggered = True
     deadline = time.monotonic() + 300
     while time.monotonic() < deadline:
-        status = railway.latest_status(environment_id, "postgres")
+        status = railway.latest_status(environment_id, service_name)
         if status == "SUCCESS":
             return
         if status is not None and status not in TERMINAL_FAILURE:
@@ -553,9 +590,9 @@ def wait_for_postgres(
             time.sleep(5)
             continue
         if status in TERMINAL_FAILURE and triggered and saw_progress:
-            raise RailwayError(f"postgres deployment {status}")
+            raise RailwayError(f"{service_name} deployment {status}")
         time.sleep(5)
-    raise RailwayError("postgres deployment timed out")
+    raise RailwayError(f"{service_name} deployment timed out")
 
 
 def write_output(project_id: str, environment_id: str, domain: str) -> None:
@@ -607,11 +644,35 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
         railway.variables(project_id, environment_id, postgres_id)
     )
     railway.upsert(project_id, environment_id, postgres_id, postgres_updates)
-    wait_for_postgres(
+    wait_for_service(
         railway,
         environment_id,
         postgres_id,
+        "postgres",
         redeploy="PGDATA" in postgres_updates,
+    )
+
+    redis_id = railway.ensure_service(
+        project_id,
+        environment_id,
+        "redis",
+        {"image": REDIS_IMAGE},
+    )
+    redis_existing = railway.variables(project_id, environment_id, redis_id)
+    redis_updates = missing_redis_variables(redis_existing)
+    railway.upsert(project_id, environment_id, redis_id, redis_updates)
+    redis_password = redis_updates.get("REDIS_PASSWORD") or redis_existing.get("REDIS_PASSWORD", "")
+    railway.configure(
+        redis_id,
+        environment_id,
+        {"startCommand": redis_start_command(redis_password)},
+    )
+    wait_for_service(
+        railway,
+        environment_id,
+        redis_id,
+        "redis",
+        redeploy="REDIS_PASSWORD" in redis_updates,
     )
 
     api_id = railway.ensure_service(project_id, environment_id, "api", None)
@@ -627,6 +688,18 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
             "startCommand": API_START,
         },
     )
+
+    agent_id = railway.ensure_service(project_id, environment_id, "agent", None)
+    railway.configure(
+        agent_id,
+        environment_id,
+        {
+            "dockerfilePath": "infra/docker/api.Dockerfile",
+            "watchPatterns": API_WATCH,
+            "startCommand": AGENT_START,
+        },
+    )
+    railway.upsert(project_id, environment_id, agent_id, agent_variables(source))
 
     web_id = railway.ensure_service(project_id, environment_id, "web", None)
     railway.configure(

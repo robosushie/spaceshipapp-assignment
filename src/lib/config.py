@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     web_origin: str = "http://localhost:5174"
     cors_origins: str = "http://localhost:5173"
     cookie_secure: bool = False
+    redis_url: str = ""
     access_token_minutes: int = 15
     refresh_token_days: int = 7
 
