@@ -2,7 +2,8 @@ from datetime import date
 from decimal import Decimal
 from typing import Any, cast
 
-from sqlalchemy import case
+from sqlalchemy import Date, case
+from sqlalchemy import cast as sa_cast
 from sqlmodel import Session, col, func, select
 
 from src.enums.orders import OrderStatus
@@ -15,6 +16,7 @@ from src.schemas.orders.metrics import (
     CarrierMetric,
     MetricsResponse,
     MetricTotals,
+    MonthVolume,
     RegionMetric,
     StatusCount,
 )
@@ -22,6 +24,12 @@ from src.schemas.orders.metrics import (
 _REGIONS = ("UK", "EU", "US-E", "US-C", "US-W")
 _LAST_MONTH_START = date(2025, 12, 1)
 _LAST_MONTH_END = date(2025, 12, 30)
+
+
+def _days(value: object) -> Decimal:
+    if value is None:
+        return Decimal("0.0")
+    return Decimal(str(value)).quantize(Decimal("0.1"))
 
 
 def _money(value: object) -> Decimal:
@@ -84,6 +92,19 @@ def get_metrics(session: Session) -> MetricsResponse:
 
     revenue = session.exec(select(func.coalesce(func.sum(Order.order_value_usd), 0))).one()
     order_count = session.exec(select(func.count()).select_from(Order)).one()
+    delivered = status_counts.get(OrderStatus.delivered, 0)
+    delayed_count = status_counts.get(OrderStatus.delayed, 0)
+    rated = delivered + delayed_count
+    on_time_rate = (Decimal(delivered) / Decimal(rated) if rated else Decimal("0")).quantize(
+        Decimal("0.0001")
+    )
+    average_days = session.exec(
+        select(func.avg(sa_cast(Order.delivery_date, Date) - Order.order_date)).where(
+            col(Order.delivery_date).is_not(None)
+        )
+    ).one()
+    month = func.to_char(Order.order_date, "YYYY-MM")
+    month_rows = session.exec(select(month, func.count()).group_by(month).order_by(month)).all()
     deliveries_last_month = session.exec(
         select(func.count())
         .select_from(Order)
@@ -96,9 +117,12 @@ def get_metrics(session: Session) -> MetricsResponse:
     totals = MetricTotals(
         orders=int(order_count),
         revenue_usd=_money(revenue),
-        delayed=status_counts.get(OrderStatus.delayed, 0),
+        delivered=delivered,
+        delayed=delayed_count,
         exceptions=status_counts.get(OrderStatus.exception, 0),
         in_transit=status_counts.get(OrderStatus.in_transit, 0),
+        on_time_rate=on_time_rate,
+        average_delivery_days=_days(average_days),
     )
     return MetricsResponse(
         totals=totals,
@@ -110,6 +134,7 @@ def get_metrics(session: Session) -> MetricsResponse:
         by_status=by_status,
         by_region=by_region,
         by_carrier=by_carrier,
+        by_month=[MonthVolume(month=str(label), orders=int(count)) for label, count in month_rows],
     )
 
 

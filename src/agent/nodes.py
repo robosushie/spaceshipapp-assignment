@@ -5,6 +5,8 @@ from langchain_core.runnables import RunnableConfig
 
 from src.agent.baml_client import b
 from src.agent.baml_client import types as baml_types
+from src.agent.forecast import build_forecast, monthly_quantities
+from src.agent.forecasting import LABELS
 from src.agent.schema import BOOK_AS_OF
 from src.agent.sql_guard import SqlRejected, run_select
 from src.agent.state import AgentState
@@ -17,6 +19,62 @@ _CHART_TYPES = {
     baml_types.ChartType.Pie: "pie",
     baml_types.ChartType.Scatter: "scatter",
 }
+_FORECAST_METHODS = {
+    baml_types.ForecastMethod.Auto: "auto",
+    baml_types.ForecastMethod.MovingAverage: "moving_average",
+    baml_types.ForecastMethod.ExponentialSmoothing: "exponential_smoothing",
+    baml_types.ForecastMethod.HoltTrend: "holt_trend",
+    baml_types.ForecastMethod.SeasonalNaive: "seasonal_naive",
+    baml_types.ForecastMethod.LinearTrend: "linear_trend",
+}
+
+
+def choose_tool(state: AgentState) -> dict[str, Any]:
+    choice = b.ChooseTool(
+        question=state["question"],
+        as_of=state.get("as_of") or BOOK_AS_OF,
+    )
+    horizon = 4 if choice.horizon_months is None else choice.horizon_months
+    sku = choice.sku.strip() if isinstance(choice.sku, str) else ""
+    method = "auto"
+    if choice.method is not None:
+        method = _FORECAST_METHODS.get(choice.method, "auto")
+    return {
+        "tool": "forecast" if choice.tool == baml_types.ToolName.Forecast else "query",
+        "sku": sku or None,
+        "horizon_months": min(12, max(1, horizon)),
+        "forecast_method": method,
+    }
+
+
+def route_tool(state: AgentState) -> str:
+    return "forecast" if state.get("tool") == "forecast" else "write_query"
+
+
+def forecast(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
+    configurable = config.get("configurable") or {}
+    built = build_forecast(
+        monthly_quantities(configurable["session"], state.get("sku")),
+        int(state.get("horizon_months") or 4),
+        state.get("sku"),
+        state.get("forecast_method"),
+    )
+    return {
+        "tool": "forecast",
+        "answer": built.answer,
+        "plot_required": built.plot_required,
+        "chart_type": "line" if built.plot_required else None,
+        "title": built.title,
+        "x_key": "month" if built.plot_required else None,
+        "y_keys": ["history", "forecast"] if built.plot_required else [],
+        "rows": built.rows,
+        "filters": built.filters,
+        "metrics": ["quantity"],
+        "dimensions": ["month"],
+        "method": LABELS[built.method],
+        "error": None,
+        "refused": False,
+    }
 
 
 def write_query(state: AgentState) -> dict[str, Any]:
@@ -40,6 +98,10 @@ def write_query(state: AgentState) -> dict[str, Any]:
         "title": plan.title,
         "x_key": plan.x_key,
         "y_keys": list(plan.y_keys),
+        "filters": list(plan.filters),
+        "metrics": list(plan.metrics),
+        "dimensions": list(plan.dimensions),
+        "tool": "query",
         "error": None,
         "refused": False,
     }

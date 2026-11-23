@@ -114,6 +114,13 @@ def test_metrics_counts_december_deliveries(client: TestClient) -> None:
     assert body["clients"] == 1
     assert body["products"] == 1
     assert body["totals"]["orders"] == 2
+    assert body["totals"]["delivered"] == 2
+    assert body["totals"]["on_time_rate"] == "1.0000"
+    assert body["totals"]["average_delivery_days"] == "0.0"
+    assert body["by_month"] == [
+        {"month": "2025-10", "orders": 1},
+        {"month": "2025-12", "orders": 1},
+    ]
 
 
 def test_questions_without_a_key_are_unavailable(client: TestClient) -> None:

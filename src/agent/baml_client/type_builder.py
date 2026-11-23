@@ -20,32 +20,44 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["QueryPlan",]
+          ["QueryPlan","ToolChoice",]
         ), enums=set(
-          ["ChartType",]
+          ["ChartType","ForecastMethod","ToolName",]
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
 
     # #########################################################################
-    # Generated enums 1
+    # Generated enums 3
     # #########################################################################
 
     @property
     def ChartType(self) -> "ChartTypeViewer":
         return ChartTypeViewer(self)
 
+    @property
+    def ForecastMethod(self) -> "ForecastMethodViewer":
+        return ForecastMethodViewer(self)
+
+    @property
+    def ToolName(self) -> "ToolNameViewer":
+        return ToolNameViewer(self)
+
 
     # #########################################################################
-    # Generated classes 1
+    # Generated classes 2
     # #########################################################################
 
     @property
     def QueryPlan(self) -> "QueryPlanViewer":
         return QueryPlanViewer(self)
 
+    @property
+    def ToolChoice(self) -> "ToolChoiceViewer":
+        return ToolChoiceViewer(self)
+
 
 
 # #########################################################################
-# Generated enums 1
+# Generated enums 3
 # #########################################################################
 
 class ChartTypeAst:
@@ -102,16 +114,116 @@ class ChartTypeValues:
     
 
 
+class ForecastMethodAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("ForecastMethod")
+        self._values: typing.Set[str] = set([  "Auto",  "MovingAverage",  "ExponentialSmoothing",  "HoltTrend",  "SeasonalNaive",  "LinearTrend",  ])
+        self._vals = ForecastMethodValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "ForecastMethodValues":
+        return self._vals
+
+
+class ForecastMethodViewer(ForecastMethodAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class ForecastMethodValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def Auto(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Auto"))
+    
+    @property
+    def MovingAverage(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("MovingAverage"))
+    
+    @property
+    def ExponentialSmoothing(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("ExponentialSmoothing"))
+    
+    @property
+    def HoltTrend(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("HoltTrend"))
+    
+    @property
+    def SeasonalNaive(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("SeasonalNaive"))
+    
+    @property
+    def LinearTrend(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("LinearTrend"))
+    
+    
+
+
+class ToolNameAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("ToolName")
+        self._values: typing.Set[str] = set([  "Query",  "Forecast",  ])
+        self._vals = ToolNameValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "ToolNameValues":
+        return self._vals
+
+
+class ToolNameViewer(ToolNameAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class ToolNameValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def Query(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Query"))
+    
+    @property
+    def Forecast(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Forecast"))
+    
+    
+
+
 
 # #########################################################################
-# Generated classes 1
+# Generated classes 2
 # #########################################################################
 
 class QueryPlanAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.class_("QueryPlan")
-        self._properties: typing.Set[str] = set([  "sql",  "plot_required",  "chart_type",  "title",  "x_key",  "y_keys",  ])
+        self._properties: typing.Set[str] = set([  "sql",  "plot_required",  "chart_type",  "title",  "x_key",  "y_keys",  "filters",  "metrics",  "dimensions",  ])
         self._props = QueryPlanProperties(self._bldr, self._properties)
 
     def type(self) -> baml_py.FieldType:
@@ -162,6 +274,69 @@ class QueryPlanProperties:
     @property
     def y_keys(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("y_keys"))
+    
+    @property
+    def filters(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("filters"))
+    
+    @property
+    def metrics(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("metrics"))
+    
+    @property
+    def dimensions(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("dimensions"))
+    
+    
+
+
+class ToolChoiceAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ToolChoice")
+        self._properties: typing.Set[str] = set([  "tool",  "sku",  "horizon_months",  "method",  ])
+        self._props = ToolChoiceProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ToolChoiceProperties":
+        return self._props
+
+
+class ToolChoiceViewer(ToolChoiceAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ToolChoiceProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def tool(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tool"))
+    
+    @property
+    def sku(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("sku"))
+    
+    @property
+    def horizon_months(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("horizon_months"))
+    
+    @property
+    def method(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("method"))
     
     
 

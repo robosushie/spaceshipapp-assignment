@@ -26,9 +26,17 @@ class CarrierMetric(BaseModel):
 class MetricTotals(BaseModel):
     orders: int
     revenue_usd: Decimal
+    delivered: int
     delayed: int
     exceptions: int
     in_transit: int
+    on_time_rate: Decimal
+    average_delivery_days: Decimal
+
+
+class MonthVolume(BaseModel):
+    month: str
+    orders: int
 
 
 class MetricsResponse(BaseModel):
@@ -41,3 +49,4 @@ class MetricsResponse(BaseModel):
     by_status: list[StatusCount]
     by_region: list[RegionMetric]
     by_carrier: list[CarrierMetric]
+    by_month: list[MonthVolume]

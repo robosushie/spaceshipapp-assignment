@@ -19,7 +19,14 @@ type_map = {
     "types.QueryPlan": types.QueryPlan,
     "stream_types.QueryPlan": stream_types.QueryPlan,
 
+    "types.ToolChoice": types.ToolChoice,
+    "stream_types.ToolChoice": stream_types.ToolChoice,
+
 
     "types.ChartType": types.ChartType,
+
+    "types.ForecastMethod": types.ForecastMethod,
+
+    "types.ToolName": types.ToolName,
 
 }

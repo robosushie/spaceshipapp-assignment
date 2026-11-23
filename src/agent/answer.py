@@ -6,7 +6,7 @@ from sqlmodel import Session
 
 from src.agent.graph import graph
 from src.agent.schema import BOOK_AS_OF, logistics_ddl
-from src.schemas.questions.question import QuestionChart, QuestionResponse
+from src.schemas.questions.question import QuestionChart, QuestionExplanation, QuestionResponse
 
 
 def run_question(session: Session, question: str) -> QuestionResponse:
@@ -27,7 +27,37 @@ def run_question(session: Session, question: str) -> QuestionResponse:
         answer=str(result.get("answer") or "The question could not be queried."),
         plot_required=plot_required,
         chart=chart,
+        explanation=_explanation(result),
     )
+
+
+def _explanation(result: dict[str, object]) -> QuestionExplanation:
+    tool = "forecast" if result.get("tool") == "forecast" else "query"
+    plan = result.get("method") if tool == "forecast" else result.get("sql")
+    return QuestionExplanation(
+        tool=tool,
+        filters=_strings(result.get("filters")),
+        metrics=_strings(result.get("metrics")),
+        dimensions=_strings(result.get("dimensions")),
+        plan=plan if isinstance(plan, str) else "",
+        rows=_rows(result.get("rows")),
+    )
+
+
+def _strings(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, str)]
+
+
+def _rows(value: object) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    rows: list[dict[str, str]] = []
+    for row in value:
+        if isinstance(row, dict):
+            rows.append({str(key): "" if cell is None else str(cell) for key, cell in row.items()})
+    return rows
 
 
 def _chart(result: dict[str, object]) -> QuestionChart | None:

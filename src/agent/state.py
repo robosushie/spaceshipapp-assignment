@@ -17,3 +17,11 @@ class AgentState(TypedDict, total=False):
     rows: list[dict[str, str]]
     answer: str
     plan: Any
+    tool: str
+    sku: str | None
+    horizon_months: int
+    filters: list[str]
+    metrics: list[str]
+    dimensions: list[str]
+    forecast_method: str
+    method: str

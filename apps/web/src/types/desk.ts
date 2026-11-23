@@ -28,9 +28,12 @@ export type Metrics = {
   totals: {
     orders: number
     revenue_usd: string
+    delivered: number
     delayed: number
     exceptions: number
     in_transit: number
+    on_time_rate: string
+    average_delivery_days: string
   }
   carriers: number
   warehouses: number
@@ -40,6 +43,7 @@ export type Metrics = {
   by_status: { status: string; count: number }[]
   by_region: { region: string; orders: number; revenue_usd: string }[]
   by_carrier: { carrier: string; orders: number; delayed: number; exceptions: number }[]
+  by_month: { month: string; orders: number }[]
 }
 
 export type QuestionChart = {
@@ -50,8 +54,18 @@ export type QuestionChart = {
   rows: Record<string, string>[]
 }
 
+export type QuestionExplanation = {
+  tool: "query" | "forecast"
+  filters: string[]
+  metrics: string[]
+  dimensions: string[]
+  plan: string
+  rows: Record<string, string>[]
+}
+
 export type QuestionResult = {
   answer: string
   plot_required: boolean
   chart: QuestionChart | null
+  explanation: QuestionExplanation
 }

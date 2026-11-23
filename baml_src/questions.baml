@@ -6,6 +6,27 @@ enum ChartType {
   Scatter @alias("scatter")
 }
 
+enum ToolName {
+  Query @alias("query")
+  Forecast @alias("forecast")
+}
+
+enum ForecastMethod {
+  Auto @alias("auto")
+  MovingAverage @alias("moving_average")
+  ExponentialSmoothing @alias("exponential_smoothing")
+  HoltTrend @alias("holt_trend")
+  SeasonalNaive @alias("seasonal_naive")
+  LinearTrend @alias("linear_trend")
+}
+
+class ToolChoice {
+  tool ToolName
+  sku string?
+  horizon_months int?
+  method ForecastMethod?
+}
+
 class QueryPlan {
   sql string
   plot_required bool
@@ -13,6 +34,31 @@ class QueryPlan {
   title string?
   x_key string?
   y_keys string[]
+  filters string[]
+  metrics string[]
+  dimensions string[]
+}
+
+function ChooseTool(question: string, as_of: string) -> ToolChoice {
+  client AnthropicSonnet
+  prompt #"
+    Choose the tool for this question about a shipping book that ends on {{ as_of }}.
+    Use forecast when the question asks to predict, forecast, or project demand,
+    or to recommend how much inventory to hold.
+    Use query for counts, filters, comparisons, trends in the book, and charts of past orders.
+    sku is the product SKU when the question names one. Otherwise leave sku null.
+    horizon_months is how many future months to forecast, from 1 to 12.
+    Use 4 when the question does not say. Leave horizon_months null for a query.
+    method is auto unless the question names a forecasting method.
+    Use moving_average for a moving average, exponential_smoothing for exponential smoothing,
+    holt_trend for Holt or a trend, seasonal_naive for seasonal or the same month last year,
+    and linear_trend for a linear trend. Leave method null for a query.
+
+    Question:
+    {{ question }}
+
+    {{ ctx.output_format }}
+  "#
 }
 
 function WriteQuery(
@@ -43,6 +89,12 @@ function WriteQuery(
     scatter is two numeric columns, such as quantity against order value. Its x_key is numeric.
     x_key and y_keys must be the output column aliases. Use a line and a week column
     formatted YYYY-MM-DD for a week-by-week series.
+
+    filters, metrics, and dimensions are short labels for how the question is read.
+    filters are constraints such as a status, a date range, a carrier, or a region.
+    metrics are the measures, such as orders or order value.
+    dimensions are the groupings, such as month or carrier.
+    Leave a list empty when the question has none. Do not put numbers in these lists.
 
     If error is not empty, the previous SQL failed. Fix it using the error. Do not repeat it.
 

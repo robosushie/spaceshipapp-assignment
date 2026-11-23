@@ -23,7 +23,7 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (1)
+# Generated classes (2)
 # #########################################################################
 
 class QueryPlan(BaseModel):
@@ -33,6 +33,15 @@ class QueryPlan(BaseModel):
     title: typing.Optional[str] = None
     x_key: typing.Optional[str] = None
     y_keys: typing.List[str]
+    filters: typing.List[str]
+    metrics: typing.List[str]
+    dimensions: typing.List[str]
+
+class ToolChoice(BaseModel):
+    tool: typing.Optional[types.ToolName] = None
+    sku: typing.Optional[str] = None
+    horizon_months: typing.Optional[int] = None
+    method: typing.Optional[types.ForecastMethod] = None
 
 # #########################################################################
 # Generated type aliases (0)
@@ -40,10 +49,11 @@ class QueryPlan(BaseModel):
 
 
 # #########################################################################
-# Model rebuilds (1)
+# Model rebuilds (2)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
 # Recursive models are intentionally omitted (Pydantic resolves those lazily;
 # eagerly rebuilding them can recurse).
 QueryPlan.model_rebuild()
+ToolChoice.model_rebuild()

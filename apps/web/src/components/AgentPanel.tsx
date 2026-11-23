@@ -504,14 +504,16 @@ function Plot({ chart, className }: { chart: QuestionChart; className?: string }
     )
   }
   const data = chart.rows.map((row) => {
-    const point: Record<string, string | number> = { ...row }
+    const point: Record<string, string | number | null> = { ...row }
     for (const key of chart.y_keys) {
-      point[key] = Number(row[key] ?? 0)
+      const raw = row[key]
+      const missing = raw === undefined || raw === ""
+      point[key] = chart.type === "line" && missing ? null : Number(raw ?? 0)
     }
     return point
   })
   const config = Object.fromEntries(
-    chart.y_keys.map((key) => [key, { label: columnLabel(key), color: "var(--foreground)" }]),
+    chart.y_keys.map((key) => [key, { label: columnLabel(key), color: lineColor(key) }]),
   )
   const interval = chart.rows.length > 8 ? "preserveStartEnd" : 0
   if (chart.type === "line") {
@@ -522,7 +524,14 @@ function Plot({ chart, className }: { chart: QuestionChart; className?: string }
           <YAxis domain={[0, "auto"]} width={32} />
           <ChartTooltip content={<ChartTooltipContent />} />
           {chart.y_keys.map((key) => (
-            <Line key={key} dataKey={key} stroke="var(--foreground)" dot={false} />
+            <Line
+              key={key}
+              dataKey={key}
+              stroke={lineColor(key)}
+              strokeWidth={2}
+              dot={false}
+              connectNulls={chart.y_keys.includes("forecast")}
+            />
           ))}
         </LineChart>
       </ChartContainer>
@@ -560,6 +569,13 @@ function Plot({ chart, className }: { chart: QuestionChart; className?: string }
       </BarChart>
     </ChartContainer>
   )
+}
+
+function lineColor(key: string): string {
+  if (key === "forecast") {
+    return "var(--chart-2)"
+  }
+  return "var(--chart-1)"
 }
 
 function chartColumns(chart: QuestionChart): string[] {

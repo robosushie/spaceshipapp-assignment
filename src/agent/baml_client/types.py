@@ -37,7 +37,7 @@ def get_checks(checks: typing.Dict[CheckName, Check]) -> typing.List[Check]:
 def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
     return all(check.status == "succeeded" for check in get_checks(checks))
 # #########################################################################
-# Generated enums (1)
+# Generated enums (3)
 # #########################################################################
 
 class ChartType(str, Enum):
@@ -47,8 +47,20 @@ class ChartType(str, Enum):
     Pie = "Pie"
     Scatter = "Scatter"
 
+class ForecastMethod(str, Enum):
+    Auto = "Auto"
+    MovingAverage = "MovingAverage"
+    ExponentialSmoothing = "ExponentialSmoothing"
+    HoltTrend = "HoltTrend"
+    SeasonalNaive = "SeasonalNaive"
+    LinearTrend = "LinearTrend"
+
+class ToolName(str, Enum):
+    Query = "Query"
+    Forecast = "Forecast"
+
 # #########################################################################
-# Generated classes (1)
+# Generated classes (2)
 # #########################################################################
 
 class QueryPlan(BaseModel):
@@ -58,6 +70,15 @@ class QueryPlan(BaseModel):
     title: typing.Optional[str] = None
     x_key: typing.Optional[str] = None
     y_keys: typing.List[str]
+    filters: typing.List[str]
+    metrics: typing.List[str]
+    dimensions: typing.List[str]
+
+class ToolChoice(BaseModel):
+    tool: ToolName
+    sku: typing.Optional[str] = None
+    horizon_months: typing.Optional[int] = None
+    method: typing.Optional[ForecastMethod] = None
 
 # #########################################################################
 # Generated type aliases (0)
@@ -65,10 +86,11 @@ class QueryPlan(BaseModel):
 
 
 # #########################################################################
-# Model rebuilds (1)
+# Model rebuilds (2)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
 # Recursive models are intentionally omitted (Pydantic resolves those lazily;
 # eagerly rebuilding them can recurse).
 QueryPlan.model_rebuild()
+ToolChoice.model_rebuild()

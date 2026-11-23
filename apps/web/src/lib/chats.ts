@@ -2,6 +2,8 @@ import type { QuestionChart } from "@/types/desk"
 
 const STORAGE_KEY = "spaceship-chats:v1"
 const CHART_TYPES = new Set(["bar", "line", "area", "pie", "scatter"])
+const RETIRED_METHOD_NOTE =
+  "A three-month moving average of monthly quantity, projected forward, with the recommended units equal to the forecast total."
 
 export type ChatMessage = {
   id: string
@@ -96,7 +98,12 @@ function parseMessage(value: unknown): ChatMessage | null {
   if (!value || typeof value !== "object") {
     return null
   }
-  const record = value as { id?: unknown; role?: unknown; text?: unknown; charts?: unknown }
+  const record = value as {
+    id?: unknown
+    role?: unknown
+    text?: unknown
+    charts?: unknown
+  }
   if (typeof record.id !== "string" || typeof record.text !== "string") {
     return null
   }
@@ -104,7 +111,16 @@ function parseMessage(value: unknown): ChatMessage | null {
     return null
   }
   const charts = Array.isArray(record.charts) ? record.charts.filter(isChart) : []
-  return { id: record.id, role: record.role, text: record.text, charts }
+  return { id: record.id, role: record.role, text: visibleText(record.text), charts }
+}
+
+function visibleText(text: string): string {
+  return text
+    .split(RETIRED_METHOD_NOTE)
+    .join("")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
 }
 
 function isChart(value: unknown): value is QuestionChart {

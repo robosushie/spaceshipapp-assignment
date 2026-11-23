@@ -23,6 +23,12 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def ChooseTool(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ToolChoice:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ChooseTool", llm_response=llm_response, mode="request")
+        return typing.cast(types.ToolChoice, __result__)
+
     def ExplainRows(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> str:
@@ -42,6 +48,12 @@ class LlmStreamParser:
 
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
+
+    def ChooseTool(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ToolChoice:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ChooseTool", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ToolChoice, __result__)
 
     def ExplainRows(
         self, llm_response: str, baml_options: BamlCallOptions = {},
