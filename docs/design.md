@@ -33,36 +33,23 @@ Buttons are 16px radius. Smaller controls, inputs, and outlined actions are 8px.
 
 ## Layout
 
-Left aligned. The page is a route sheet.
-
-```
-Ask                                    Spaceship
-one question
-[ transcript ]
-  answer
-  [ plot preview ]
-[ question ] [ Ask ]                   [ filter ]
-
-                                       order id  client  dates  carrier  warehouse
-                                       region  lane  status  sku  qty  prices  promo
-                                       ------------------------------------------------
-                                       ...
-                                       < Previous                       Next >
-```
-
-On a narrow viewport the chat column stacks above the table. Nothing becomes a stack of equal cards.
+Left aligned. A signed-in page is a rail plus one route. The rail is a column on a laptop and a bottom bar on a narrow screen. Dashboard is the summary. Details is the order table. The agent is a panel over whichever page is open, not a third column in the table. On a narrow screen that panel fills the viewport. Nothing becomes a stack of equal cards.
 
 Plots are not drawn on the desk page. When the question asks for a plot, the reply includes one Recharts series built from the rows Postgres returned: a line or area over time, a bar comparison, a pie for a small share of a whole, or a scatter of two numeric columns. The reply shows a short dummy plot, narrower than the message: a line over a light grid, the same drawing for every chart. Hovering it shows "Click me". Activating it opens the real plot in a dialog in the center of the screen. Plot and Data are an underline row that scrolls sideways, and the data table scrolls when it overflows. Axes are labeled in the same sentence case as the rest of the UI. Bars, lines, areas, and scatter use ink. Pie slices use ink, wine, stone, and lilac. A question that does not ask for a plot has no chart.
 
 ## Screens
 
-`/login` — email, password, a button that says "Sign in". The error under the form is the API detail, which is one sentence for both unknown email and wrong password. No illustration.
+How to use these screens is in [using.md](using.md).
 
-`/dashboard` — the desk. It requires a signed-in session. `/` redirects here. A missing session navigates to `/login`. The header button says "Sign out" and calls logout.
+`/login` — email, password, a button that says "Sign in". The error under the form is the API detail, which is one sentence for both unknown email and wrong password.
 
-The order table shows forty rows at a time, with the total and a way to move by offset. Each row shows the order id, client, dates, carrier, warehouse, region, origin, destination, status, SKU, category, quantity, unit price, value, and promo. Filter, with a funnel icon, drops a sentence chip into the bar and opens a panel directly under that chip. Previous and Next carry a chevron on the side the page moves. The panel is a popover, not a hover tooltip: it holds the column, the operator, and the value, stays open while those change, and closes on Escape or a click outside. The table does not move to make room. Clicking the chip opens the same panel again. Several filters apply together. Empty results say "No orders match these filters." and leave the filters in place.
+`/dashboard` — counts for the book: orders and value, December deliveries, carriers, warehouses, clients, products, in transit, delayed, exceptions, regions, and status. `/` redirects here. A missing session navigates to `/login`. Sign out is on the rail.
 
-The right panel is a chat. A short vertical handle on its inner edge can be dragged, or moved with the arrow keys, to make the panel wider or narrower. That width stays in this browser. A row of conversations sits at the top and scrolls sideways. Each tab is named by gpt-5-nano from the first question, in a few words. Until that name arrives, the tab shows the question itself. The active tab uses the same surface as the transcript and covers the rule under it, so the tab and the conversation are one piece. Inactive tabs sit on the paper behind that rule, and their close control appears on hover. A plus button starts a new chat, and each tab can be closed. Closing the last one leaves an empty chat. The conversations are saved in this browser and stay after a refresh. The panel has one text area and a send icon. While the request is in flight the button is disabled and a skeleton sits in the transcript that asked. The reply is the model's paragraph and, when a plot was required, the dummy plot. If the service is unavailable the reply says "Questions are unavailable until an Anthropic key is configured." and has no plot. It does not show a stack trace.
+`/details` — the order table, forty rows at a time. Each row shows the order id, client, dates, carrier, warehouse, region, origin, destination, status, SKU, category, quantity, unit price, value, and promo. Filter, with a funnel icon, drops a sentence chip into the bar and opens a panel directly under that chip. Previous and Next carry a chevron on the side the page moves. The panel is a popover, not a hover tooltip: it holds the column, the operator, and the value, stays open while those change, and closes on Escape or a click outside. The table does not move to make room. Clicking the chip opens the same panel again. Several filters apply together. Empty results say "No orders match these filters." and leave the filters in place.
+
+The agent is a panel opened from the Agent button. A short vertical handle on its inner edge can be dragged, or moved with the arrow keys, to make the panel wider or narrower. The default width is 480px, and the chosen width stays in this browser. A row of conversations sits at the top and scrolls sideways. Each tab is named by gpt-5-nano from the first question, in a few words. Until that name arrives, the tab shows the question itself. The active tab uses the same surface as the transcript and covers the rule under it, so the tab and the conversation are one piece. Inactive tabs sit on the paper behind that rule, and their close control appears on hover. A plus button starts a new chat, and each tab can be closed. Closing the last one leaves an empty chat. The conversations are saved in this browser and stay after a refresh. The panel has one text area and a send icon. While the request is in flight the button is disabled and a skeleton sits in the transcript that asked. The reply is the model's paragraph and, when a plot was required, the dummy plot. If the service is unavailable the reply says "Questions are unavailable until an Anthropic key is configured." and has no plot. It does not show a stack trace.
+
+`/settings` — profile and password for the signed-in person. An admin also has Invite.
 
 ## Writing
 

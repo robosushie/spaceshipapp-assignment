@@ -1,6 +1,31 @@
 # Spaceship
 
-Internal desk for the 2025 shipping book: 400 stationery orders, nine carriers, nine warehouses. The design notes are in [docs/architecture.md](docs/architecture.md), [docs/api.md](docs/api.md), [docs/design.md](docs/design.md), and [docs/auth.md](docs/auth.md).
+Internal desk for the 2025 shipping book: 400 stationery orders, nine carriers, nine warehouses, 1 Jan through 30 Dec 2025. You see what is late, read the orders, and ask a question about the rows.
+
+The walkthrough is [docs/using.md](docs/using.md). Design, HTTP, sign-in, and architecture notes are in [docs/design.md](docs/design.md), [docs/api.md](docs/api.md), [docs/auth.md](docs/auth.md), and [docs/architecture.md](docs/architecture.md).
+
+## The desk
+
+Sign in, then use the left rail. **Dashboard** is the summary. **Details** is the order table. **Settings** is your profile. **Agent**, at the bottom right, asks a question about the book.
+
+![Sign in](docs/images/sign-in.png)
+
+![Dashboard](docs/images/dashboard.png)
+
+![Agent](docs/images/agent.png)
+
+![Order table](docs/images/details.png)
+
+![Settings](docs/images/settings.png)
+
+Two seeded accounts come with the book. An admin can invite someone else. A member cannot.
+
+| Email | Role | Password |
+| --- | --- | --- |
+| `admin@spaceship.test` | Admin | `spaceship_1234` |
+| `member@spaceship.test` | Member | `spaceship_1234` |
+
+The access token stays in memory. A reload uses the refresh cookie.
 
 ## Run locally
 
@@ -23,23 +48,33 @@ pnpm dev
 - API: http://127.0.0.1:8000
 - OpenAPI: http://127.0.0.1:8000/docs
 
-`pnpm db:seed` loads the desk users from `scripts/bootstrap/data/users.json`. Sign in as `admin@spaceship.test` or `member@spaceship.test` with password `spaceship_1234`. The access token stays in memory. A reload uses the refresh cookie.
+The summary and the order table work with no model key. A question needs three more pieces: `ANTHROPIC_API_KEY`, a Redis URL, and the agent worker. `OPENAI_API_KEY` is optional and only names the chat tab.
 
-`POST /v1/questions` returns 503 until `ANTHROPIC_API_KEY` is set. The rest of the desk works without it.
+```bash
+docker run -d --name spaceship-redis -p 6379:6379 redis:7-alpine
+```
+
+Set `REDIS_URL=redis://localhost:6379/0` in `.env`, restart `pnpm dev`, then in another terminal:
+
+```bash
+uv run python -m src.agent.worker
+```
+
+Until those are set, the agent replies that questions are unavailable. It does not show a stack trace.
 
 ## Deploy
 
-Actions → **deploy** → **Run workflow**, then choose the branch in **Use workflow from**. That run creates Postgres, the API, and the web service if they are missing, then uploads the API and web images from the selected branch. `ci` does not deploy.
+Actions → **deploy** → **Run workflow**, then choose the branch in **Use workflow from**. That run creates Postgres, Redis, the API, the agent, and the web service if they are missing, then uploads the API, agent, and web images from the selected branch. `ci` does not deploy.
 
 The API pre-deploy command applies pending Alembic revisions, then loads the shipping book only when `orders` is empty. A database that already has orders is left as it is.
 
-The Railway project must be named `spaceship`. Repository secrets `RAILWAY_TOKEN` and `JWT_SECRET` are required. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `RESEND_API_KEY`, and `RESEND_FROM` are optional.
+The Railway project must be named `spaceship`. Repository secrets `RAILWAY_TOKEN` and `JWT_SECRET` are required. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `RESEND_API_KEY`, and `RESEND_FROM` are optional. `RAILWAY_TOKEN` is an account token from [railway.com/account/tokens](https://railway.com/account/tokens). Leave `RAILWAY_WORKSPACE` unset unless more than one project is named spaceship.
 
 ## Scripts
 
 | Script | What it does |
 | --- | --- |
-| `pnpm dev` | API and Vite together, via concurrently |
+| `pnpm dev` | API and Vite together |
 | `pnpm db:create` | Start Postgres from `infra/compose/docker-compose.yml` |
 | `pnpm db:make -- "message"` | Alembic autogenerate |
 | `pnpm db:migrate` | `alembic upgrade head` |

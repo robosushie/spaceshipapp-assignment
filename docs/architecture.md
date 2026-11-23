@@ -2,7 +2,7 @@
 
 Spaceship is an internal logistics desk for one shipping book. The book is the 400-row file at `docs/manuals/mock_logistics_data.csv`: stationery orders (crayons, paper, paint, and the rest) moved by nine carriers out of nine warehouses between 1 Jan 2025 and 30 Dec 2025.
 
-This document is why the stack is shaped the way it is. The HTTP contract is in [api.md](api.md). Sign-in is in [auth.md](auth.md). The screen is in [design.md](design.md).
+This document is why the stack is shaped the way it is. The HTTP contract is in [api.md](api.md). Sign-in is in [auth.md](auth.md). How to use the desk is in [using.md](using.md). The screen is in [design.md](design.md).
 
 ## What the book actually is
 
