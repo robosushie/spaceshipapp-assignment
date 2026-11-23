@@ -9,6 +9,7 @@ from scripts.railway.bootstrap import (
     POSTGRES_DATABASE_URL,
     REDIS_URL,
     SHARED_REDIS_URL,
+    Railway,
     RailwayError,
     agent_variables,
     api_variables,
@@ -166,6 +167,12 @@ def test_several_workspaces_need_an_explicit_id() -> None:
     with pytest.raises(RailwayError, match="RAILWAY_WORKSPACE"):
         choose_workspace(workspaces, None)
     assert choose_workspace(workspaces, "two") == "two"
+
+
+def test_project_token_is_reused_for_the_cli() -> None:
+    railway = Railway("project-token")
+    railway._project_token = True
+    assert railway.project_deploy_token("project", "environment") == "project-token"
 
 
 def test_unauthorized_matches_the_railway_error() -> None:

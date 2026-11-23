@@ -577,6 +577,8 @@ class Railway:
         return cast(str, domain["domain"])
 
     def project_deploy_token(self, project_id: str, environment_id: str) -> str:
+        if self._project_token:
+            return self._token
         created = self.gql(
             """
             mutation projectTokenCreate($input: ProjectTokenCreateInput!) {
