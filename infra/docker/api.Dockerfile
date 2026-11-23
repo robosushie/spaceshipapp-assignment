@@ -13,7 +13,9 @@ COPY alembic ./alembic
 COPY alembic.ini ./
 COPY scripts/bootstrap ./scripts/bootstrap
 COPY scripts/railway/release.py ./scripts/railway/release.py
+COPY scripts/railway/api-entrypoint.sh ./scripts/railway/api-entrypoint.sh
+RUN chmod +x ./scripts/railway/api-entrypoint.sh
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-CMD ["sh", "-c", "exec python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["/app/scripts/railway/api-entrypoint.sh"]

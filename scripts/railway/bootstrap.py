@@ -21,10 +21,12 @@ PROJECT_NAME = "spaceship"
 ENVIRONMENT_NAME = "production"
 POSTGRES_IMAGE = "postgres:17"
 POSTGRES_MOUNT = "/var/lib/postgresql/data"
+POSTGRES_DATA = "/var/lib/postgresql/data/pgdata"
 POSTGRES_DATABASE_URL = (
     "postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}"
     "@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{POSTGRES_DB}}"
 )
+API_START = "/app/scripts/railway/api-entrypoint.sh"
 API_UPSTREAM = "http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}"
 WEB_ORIGIN = "https://${{web.RAILWAY_PUBLIC_DOMAIN}}"
 REQUIRED_SECRETS = ("JWT_SECRET",)
@@ -40,6 +42,7 @@ API_WATCH = [
     "alembic/**",
     "scripts/bootstrap/**",
     "scripts/railway/release.py",
+    "scripts/railway/api-entrypoint.sh",
     "pyproject.toml",
     "uv.lock",
     "infra/docker/api.Dockerfile",
@@ -107,6 +110,37 @@ def matching_projects(
     return [project for project in projects if project.get("name") == name]
 
 
+def workspace_records(payload: Mapping[str, object]) -> list[dict[str, object]]:
+    token = payload.get("apiToken")
+    if not isinstance(token, Mapping):
+        return []
+    workspaces = token.get("workspaces")
+    if isinstance(workspaces, list):
+        return [dict(item) for item in workspaces if isinstance(item, Mapping)]
+    if isinstance(workspaces, Mapping):
+        return edges({"workspaces": workspaces}, "workspaces", "edges")
+    return []
+
+
+def choose_workspace(workspaces: Sequence[Mapping[str, object]], requested: str | None) -> str:
+    visible = [item for item in workspaces if isinstance(item.get("id"), str)]
+    if requested:
+        if any(item.get("id") == requested for item in visible):
+            return requested
+        raise RailwayError("RAILWAY_WORKSPACE is not visible to this token")
+    if len(visible) == 1:
+        return cast(str, visible[0]["id"])
+    if not visible:
+        raise RailwayError(
+            "This Railway token cannot list a workspace. "
+            "Create an account token at railway.com/account/tokens."
+        )
+    names = ", ".join(str(item.get("name") or item.get("id")) for item in visible)
+    raise RailwayError(
+        f"More than one Railway workspace is visible ({names}). Set RAILWAY_WORKSPACE."
+    )
+
+
 def missing_postgres_variables(existing: Mapping[str, str]) -> dict[str, str]:
     updates: dict[str, str] = {}
     if "POSTGRES_USER" not in existing:
@@ -117,6 +151,8 @@ def missing_postgres_variables(existing: Mapping[str, str]) -> dict[str, str]:
         updates["POSTGRES_DB"] = "spaceship"
     if existing.get("DATABASE_URL") != POSTGRES_DATABASE_URL:
         updates["DATABASE_URL"] = POSTGRES_DATABASE_URL
+    if existing.get("PGDATA") != POSTGRES_DATA:
+        updates["PGDATA"] = POSTGRES_DATA
     return updates
 
 
@@ -141,20 +177,29 @@ def needs_postgres_deploy(status: str | None) -> bool:
     return status is None or status in TERMINAL_FAILURE
 
 
+def unauthorized(exc: RailwayError) -> bool:
+    return "Not Authorized" in str(exc)
+
+
 class Railway:
     def __init__(self, token: str) -> None:
         self._token = token
+        self._project_token = False
 
     def gql(self, query: str, variables: Mapping[str, object]) -> dict[str, object]:
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
+        }
+        if self._project_token:
+            headers["Project-Access-Token"] = self._token
+        else:
+            headers["Authorization"] = f"Bearer {self._token}"
         body = json.dumps({"query": query, "variables": variables}).encode()
         request = urllib.request.Request(
             ENDPOINT,
             data=body,
-            headers={
-                "Authorization": f"Bearer {self._token}",
-                "Content-Type": "application/json",
-                "User-Agent": USER_AGENT,
-            },
+            headers=headers,
             method="POST",
         )
         try:
@@ -175,28 +220,47 @@ class Railway:
             raise RailwayError("Railway API returned no data")
         return cast(dict[str, object], data)
 
-    def projects(self, workspace_id: str | None) -> list[dict[str, object]]:
-        if workspace_id:
-            data = self.gql(
-                """
-                query workspaceProjects($workspaceId: String!) {
-                  projects(workspaceId: $workspaceId) {
-                    edges { node { id name } }
-                  }
-                }
-                """,
-                {"workspaceId": workspace_id},
-            )
-        else:
-            data = self.gql(
-                """
-                query projects {
-                  projects { edges { node { id name } } }
-                }
-                """,
-                {},
-            )
+    def projects(self, workspace_id: str) -> list[dict[str, object]]:
+        data = self.gql(
+            """
+            query workspaceProjects($workspaceId: String!) {
+              projects(workspaceId: $workspaceId) {
+                edges { node { id name } }
+              }
+            }
+            """,
+            {"workspaceId": workspace_id},
+        )
         return edges(data, "projects", "edges")
+
+    def workspace_id(self, requested: str | None) -> str:
+        data = self.gql(
+            """
+            query tokenWorkspaces {
+              apiToken { workspaces { id name } }
+            }
+            """,
+            {},
+        )
+        return choose_workspace(workspace_records(data), requested)
+
+    def project_token_scope(self) -> tuple[str, str | None]:
+        self._project_token = True
+        data = self.gql(
+            """
+            query projectScope {
+              projectToken { projectId environmentId }
+            }
+            """,
+            {},
+        )
+        node = data.get("projectToken")
+        if not isinstance(node, Mapping) or not isinstance(node.get("projectId"), str):
+            raise RailwayError("The Railway token is not a project token")
+        environment_id = node.get("environmentId")
+        if environment_id is not None and not isinstance(environment_id, str):
+            raise RailwayError("The project token did not include an environment")
+        return cast(str, node["projectId"]), environment_id
 
     def create_project(self, workspace_id: str | None) -> str:
         project_input: dict[str, object] = {"name": PROJECT_NAME}
@@ -464,19 +528,31 @@ class Railway:
         return cast(str, domain["domain"])
 
 
-def wait_for_postgres(railway: Railway, environment_id: str, service_id: str) -> None:
+def wait_for_postgres(
+    railway: Railway,
+    environment_id: str,
+    service_id: str,
+    *,
+    redeploy: bool,
+) -> None:
     triggered = False
+    saw_progress = False
+    if redeploy:
+        railway.deploy(service_id, environment_id)
+        triggered = True
     deadline = time.monotonic() + 300
     while time.monotonic() < deadline:
         status = railway.latest_status(environment_id, "postgres")
         if status == "SUCCESS":
             return
+        if status is not None and status not in TERMINAL_FAILURE:
+            saw_progress = True
         if needs_postgres_deploy(status) and not triggered:
             railway.deploy(service_id, environment_id)
             triggered = True
             time.sleep(5)
             continue
-        if status in TERMINAL_FAILURE and triggered:
+        if status in TERMINAL_FAILURE and triggered and saw_progress:
             raise RailwayError(f"postgres deployment {status}")
         time.sleep(5)
     raise RailwayError("postgres deployment timed out")
@@ -498,19 +574,27 @@ def write_output(project_id: str, environment_id: str, domain: str) -> None:
 def bootstrap(env: Mapping[str, str] | None = None) -> None:
     source = os.environ if env is None else env
     require_secrets(source)
-    workspace = source.get("RAILWAY_WORKSPACE", "").strip() or None
+    requested_workspace = source.get("RAILWAY_WORKSPACE", "").strip() or None
     railway = Railway(railway_token(source))
-    found = matching_projects(railway.projects(workspace), PROJECT_NAME)
-    if len(found) > 1:
-        raise RailwayError(
-            "More than one Railway project is named spaceship. Set RAILWAY_WORKSPACE."
+    try:
+        workspace = railway.workspace_id(requested_workspace)
+    except RailwayError as exc:
+        if not unauthorized(exc):
+            raise
+        project_id, token_environment = railway.project_token_scope()
+        environment_id = token_environment or railway.environment_id(project_id)
+    else:
+        found = matching_projects(railway.projects(workspace), PROJECT_NAME)
+        if len(found) > 1:
+            raise RailwayError(
+                "More than one Railway project is named spaceship. Set RAILWAY_WORKSPACE."
+            )
+        project_id = (
+            cast(str, found[0]["id"])
+            if found and isinstance(found[0].get("id"), str)
+            else railway.create_project(workspace)
         )
-    project_id = (
-        cast(str, found[0]["id"])
-        if found and isinstance(found[0].get("id"), str)
-        else railway.create_project(workspace)
-    )
-    environment_id = railway.environment_id(project_id)
+        environment_id = railway.environment_id(project_id)
 
     postgres_id = railway.ensure_service(
         project_id,
@@ -519,13 +603,16 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
         {"image": POSTGRES_IMAGE},
     )
     railway.ensure_volume(project_id, environment_id, postgres_id)
-    railway.upsert(
-        project_id,
+    postgres_updates = missing_postgres_variables(
+        railway.variables(project_id, environment_id, postgres_id)
+    )
+    railway.upsert(project_id, environment_id, postgres_id, postgres_updates)
+    wait_for_postgres(
+        railway,
         environment_id,
         postgres_id,
-        missing_postgres_variables(railway.variables(project_id, environment_id, postgres_id)),
+        redeploy="PGDATA" in postgres_updates,
     )
-    wait_for_postgres(railway, environment_id, postgres_id)
 
     api_id = railway.ensure_service(project_id, environment_id, "api", None)
     railway.configure(
@@ -537,7 +624,7 @@ def bootstrap(env: Mapping[str, str] | None = None) -> None:
             "healthcheckPath": "/health",
             "healthcheckTimeout": 120,
             "preDeployCommand": "python scripts/railway/release.py",
-            "startCommand": "python -m uvicorn src.main:app --host 0.0.0.0 --port $PORT",
+            "startCommand": API_START,
         },
     )
 

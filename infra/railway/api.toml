@@ -9,6 +9,7 @@ watchPatterns = [
   "alembic/**",
   "scripts/bootstrap/**",
   "scripts/railway/release.py",
+  "scripts/railway/api-entrypoint.sh",
   "pyproject.toml",
   "uv.lock",
   "infra/docker/api.Dockerfile",
@@ -19,4 +20,4 @@ watchPatterns = [
 preDeployCommand = ["python scripts/railway/release.py"]
 healthcheckPath = "/health"
 healthcheckTimeout = 120
-startCommand = "python -m uvicorn src.main:app --host 0.0.0.0 --port $PORT"
+startCommand = "/app/scripts/railway/api-entrypoint.sh"

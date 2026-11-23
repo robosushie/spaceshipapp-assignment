@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
 def should_seed(order_count: int) -> bool:
@@ -27,8 +29,6 @@ def main() -> None:
     subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT, check=True)
     if not should_seed(order_count()):
         return
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
     from scripts.bootstrap.run import load_json
 
     load_json()
