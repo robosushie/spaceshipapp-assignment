@@ -4,7 +4,7 @@ Spaceship is one shipping book, not a place to create orders or talk to carriers
 
 Sign in at `/login`. `/` sends you to the dashboard. A missing session sends you back to sign in. The error under the form is one sentence for an unknown email and a wrong password.
 
-![Sign in](images/sign-in.png)
+<img src="images/sign-in.png" alt="Sign in" width="560">
 
 The left rail is the same on every signed-in page.
 
@@ -22,7 +22,7 @@ On a narrow screen the rail sits along the bottom.
 
 The dashboard is the state of the book, not a chart you configure.
 
-![Dashboard](images/dashboard.png)
+<img src="images/dashboard.png" alt="Dashboard" width="560">
 
 | Figure | Meaning |
 | --- | --- |
@@ -37,7 +37,7 @@ The dashboard is the state of the book, not a chart you configure.
 
 Details is every order, forty at a time. Previous and Next move by that page.
 
-![Order table](images/details.png)
+<img src="images/details.png" alt="Order table" width="560">
 
 Each row is one order: id, client, order date, delivery date, carrier, warehouse, region, origin, destination, status, SKU, category, quantity, unit price, value, and promo. A missing delivery date is shown as a dash. That is the in-transit and canceled orders.
 
@@ -49,7 +49,7 @@ Operators depend on the column. Text can contain or equal. Dates can be on, befo
 
 **Agent** opens a panel on the right. Drag the handle on its inner edge, or focus the handle and use the arrow keys, to change the width. The default is 480px. The panel remembers the width in this browser. A new chat starts from the plus button. Each tab can be closed. Closing the last tab leaves an empty chat. Conversations stay in this browser after a refresh.
 
-![Agent](images/agent.png)
+<img src="images/agent.png" alt="Agent" width="560">
 
 Ask questions in plain language, then send one. Examples that match the book:
 
@@ -65,7 +65,7 @@ Escape closes the panel.
 
 ## Settings
 
-![Settings](images/settings.png)
+<img src="images/settings.png" alt="Settings" width="560">
 
 **Profile** edits your name, title, and department. Role and email are fixed.
 

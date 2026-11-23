@@ -8,15 +8,15 @@ The walkthrough is [docs/using.md](docs/using.md). Design, HTTP, sign-in, and ar
 
 Sign in, then use the left rail. **Dashboard** is the summary. **Details** is the order table. **Settings** is your profile. **Agent**, at the bottom right, asks a question about the book.
 
-![Sign in](docs/images/sign-in.png)
+<img src="docs/images/sign-in.png" alt="Sign in" width="560">
 
-![Dashboard](docs/images/dashboard.png)
+<img src="docs/images/dashboard.png" alt="Dashboard" width="560">
 
-![Agent](docs/images/agent.png)
+<img src="docs/images/agent.png" alt="Agent" width="560">
 
-![Order table](docs/images/details.png)
+<img src="docs/images/details.png" alt="Order table" width="560">
 
-![Settings](docs/images/settings.png)
+<img src="docs/images/settings.png" alt="Settings" width="560">
 
 Two seeded accounts come with the book. An admin can invite someone else. A member cannot.
 
