@@ -1,16 +1,23 @@
 from fastapi import HTTPException
 from sqlmodel import Session
 
-from src.enums import UserRole
 from src.lib.security import hash_password, verify_password
 from src.models import User
 
 _WRONG_PASSWORD = "Email or password is incorrect."
 
 
-def update_profile(session: Session, user: User, *, name: str, role: UserRole) -> User:
+def update_profile(
+    session: Session,
+    user: User,
+    *,
+    name: str,
+    title: str,
+    department: str,
+) -> User:
     user.name = name.strip()
-    user.role = role
+    user.title = title.strip()
+    user.department = department.strip()
     session.add(user)
     session.commit()
     session.refresh(user)

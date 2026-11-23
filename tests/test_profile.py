@@ -24,14 +24,22 @@ def test_profile_update(client: TestClient) -> None:
     updated = client.post(
         "/v1/me",
         headers={"Authorization": f"Bearer {token}"},
-        json={"name": "Ada Lovelace", "role": "admin"},
+        json={
+            "name": "Ada Lovelace",
+            "title": "Ops lead",
+            "department": "Logistics",
+            "role": "admin",
+        },
     )
     assert updated.status_code == 200
     assert updated.json()["name"] == "Ada Lovelace"
-    assert updated.json()["role"] == "admin"
+    assert updated.json()["title"] == "Ops lead"
+    assert updated.json()["department"] == "Logistics"
+    assert updated.json()["role"] == "member"
     assert updated.json()["email"] == "analyst@spaceship.local"
     again = client.get("/v1/me", headers={"Authorization": f"Bearer {token}"})
-    assert again.json()["role"] == "admin"
+    assert again.json()["role"] == "member"
+    assert again.json()["title"] == "Ops lead"
 
 
 def test_password_rejects_the_current_password(client: TestClient) -> None:

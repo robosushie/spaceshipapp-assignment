@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react"
-import { Navigate } from "react-router"
+import { Link, Navigate } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -63,6 +63,11 @@ export function Login() {
           </Field>
           <Button type="submit" disabled={pending}>
             Sign in
+          </Button>
+          <Button variant="link" asChild>
+            <Link to={email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password"}>
+              Forgot password
+            </Link>
           </Button>
         </FieldGroup>
       </form>

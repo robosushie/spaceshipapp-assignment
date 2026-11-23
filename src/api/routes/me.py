@@ -14,7 +14,13 @@ def read_me(user: CurrentUser) -> UserPublic:
 
 @router.post("", response_model=UserPublic)
 def write_me(body: ProfileUpdate, user: CurrentUser, session: SessionDep) -> UserPublic:
-    updated = update_profile(session, user, name=body.name, role=body.role)
+    updated = update_profile(
+        session,
+        user,
+        name=body.name,
+        title=body.title,
+        department=body.department,
+    )
     return UserPublic.model_validate(updated)
 
 

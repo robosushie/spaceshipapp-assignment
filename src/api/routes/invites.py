@@ -17,7 +17,15 @@ def create(
 ) -> dict[str, str]:
     if user.role != UserRole.admin:
         raise HTTPException(status_code=403, detail="Only an admin can invite.")
-    email = create_invite(session, settings, name=body.name, email=body.email, role=body.role)
+    email = create_invite(
+        session,
+        settings,
+        name=body.name,
+        email=body.email,
+        role=body.role,
+        title=body.title,
+        department=body.department,
+    )
     return {"email": email}
 
 

@@ -8,7 +8,9 @@ People who use the desk are `users`. The seeded account comes from `BOOTSTRAP_AD
 
 Only an admin can invite. `POST /v1/invites` stores the person with a password they cannot use and a hashed one-time token that expires in 7 days. Resend sends the raw token once, inside a link to `/accept-invite`. The API response does not include it. `POST /v1/invites/accept` sets the password and clears the token. Until a sending domain is verified, `onboarding@resend.dev` only delivers to the address on the Resend account.
 
-A person can change their own name and role with `POST /v1/me`. The access token is checked, then the user row is loaded again, so a role change applies on the next request. A wrong current password on `POST /v1/me/password` uses the same 401 sentence as login.
+A person can change their own name, title, and department with `POST /v1/me`. They cannot change their own role. The role is chosen when an admin invites them. A wrong current password on `POST /v1/me/password` uses the same 401 sentence as login.
+
+`POST /v1/auth/forgot` always returns 204 with an empty body, whether or not the email has an account. A missing `RESEND_API_KEY` is 503 for every address. A person who already has a password receives one hashed link, valid for 1 hour, to `/reset-password`. Someone who has not accepted an invite is left on that invite link. `POST /v1/auth/reset` sets the password and clears the token. An unknown or expired token is 404. The raw token is only in the email.
 
 Authentication answers who is calling (401). Authorization answers what they may do (403). A member who calls `POST /v1/invites` gets 403. Every other route in this slice is allowed for both roles.
 

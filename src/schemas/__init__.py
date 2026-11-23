@@ -111,12 +111,15 @@ class UserPublic(BaseModel):
     id: int
     email: str
     name: str
+    title: str
+    department: str
     role: UserRole
 
 
 class ProfileUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
-    role: UserRole
+    title: str = Field(default="", max_length=120)
+    department: str = Field(default="", max_length=120)
 
 
 class PasswordChange(BaseModel):
@@ -128,6 +131,17 @@ class InviteRequest(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     email: str = Field(min_length=3, max_length=320)
     role: UserRole
+    title: str = Field(default="", max_length=120)
+    department: str = Field(default="", max_length=120)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=320)
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+    password: str = Field(min_length=8, max_length=200)
 
 
 class AcceptInviteRequest(BaseModel):

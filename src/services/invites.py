@@ -8,7 +8,7 @@ from src.lib.config import Settings
 from src.lib.security import hash_password, hash_token, new_refresh_token
 from src.models import User
 from src.services.auth import normalize_email
-from src.services.mail import InviteMailError, send_invite
+from src.services.mail import MailError, send_invite
 
 _INVITE_DAYS = 7
 
@@ -20,6 +20,8 @@ def create_invite(
     name: str,
     email: str,
     role: UserRole,
+    title: str = "",
+    department: str = "",
 ) -> str:
     normalized = normalize_email(email)
     existing = session.exec(select(User).where(User.email == normalized)).first()
@@ -29,6 +31,8 @@ def create_invite(
     user = User(
         email=normalized,
         name=name.strip(),
+        title=title.strip(),
+        department=department.strip(),
         password_hash=hash_password(new_refresh_token()),
         role=role,
         invite_token_hash=hash_token(raw),
@@ -39,7 +43,7 @@ def create_invite(
     link = f"{settings.web_origin.rstrip('/')}/accept-invite?token={raw}"
     try:
         send_invite(settings, to=normalized, name=user.name, link=link)
-    except InviteMailError as exc:
+    except MailError as exc:
         session.rollback()
         raise HTTPException(status_code=503, detail="The invite email could not be sent.") from exc
     session.commit()

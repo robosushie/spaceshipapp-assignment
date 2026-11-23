@@ -5,7 +5,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/lib/auth"
 import { AcceptInvite } from "@/pages/AcceptInvite"
 import { Desk } from "@/pages/Desk"
+import { ForgotPassword } from "@/pages/ForgotPassword"
 import { Login } from "@/pages/Login"
+import { ResetPassword } from "@/pages/ResetPassword"
 import { Settings } from "@/pages/Settings"
 
 function Gate({ children }: { children: ReactNode }) {
@@ -28,6 +30,8 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route
