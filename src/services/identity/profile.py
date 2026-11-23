@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlmodel import Session
 
 from src.lib.security import hash_password, verify_password
-from src.models import User
+from src.models.identity.user import User
 
 _WRONG_PASSWORD = "Email or password is incorrect."
 

@@ -6,7 +6,7 @@ from sqlmodel import Session
 from src.agent.graph import graph
 from src.agent.schema import BOOK_AS_OF, logistics_ddl
 from src.lib.config import get_settings
-from src.schemas import QuestionChart, QuestionResponse
+from src.schemas.questions.question import QuestionChart, QuestionResponse
 
 logger = logging.getLogger("spaceship.questions")
 _UNAVAILABLE = "Questions are unavailable."
@@ -48,7 +48,11 @@ def _chart(result: dict[str, object]) -> QuestionChart | None:
     y_keys = result.get("y_keys")
     rows = result.get("rows")
     title = result.get("title")
-    if chart_type not in {"bar", "line", "area", "pie", "scatter"} or not isinstance(x_key, str) or not x_key:
+    if (
+        chart_type not in {"bar", "line", "area", "pie", "scatter"}
+        or not isinstance(x_key, str)
+        or not x_key
+    ):
         return None
     if not isinstance(y_keys, list) or not all(isinstance(key, str) and key for key in y_keys):
         return None

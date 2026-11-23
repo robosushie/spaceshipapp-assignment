@@ -3,10 +3,16 @@ from decimal import Decimal
 
 from sqlmodel import Session
 
-from src.enums import OrderStatus, UserRole
+from src.enums.identity import UserRole
+from src.enums.orders import OrderStatus
 from src.lib.db import engine
 from src.lib.security import hash_password
-from src.models import Carrier, Client, Order, Product, User, Warehouse
+from src.models.catalog.carrier import Carrier
+from src.models.catalog.client import Client
+from src.models.catalog.product import Product
+from src.models.catalog.warehouse import Warehouse
+from src.models.identity.user import User
+from src.models.orders.order import Order
 
 
 def add_user(

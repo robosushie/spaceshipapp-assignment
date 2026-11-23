@@ -4,9 +4,11 @@ from typing import Any
 
 from sqlmodel import Session, col, func, select
 
-from src.enums import OrderStatus
-from src.models import Order, Product, Warehouse
-from src.schemas import OrderPage, OrderRead
+from src.enums.orders import OrderStatus
+from src.models.catalog.product import Product
+from src.models.catalog.warehouse import Warehouse
+from src.models.orders.order import Order
+from src.schemas.orders.order import OrderPage, OrderRead
 
 _TEXT: dict[str, Any] = {
     "order_id": Order.order_id,

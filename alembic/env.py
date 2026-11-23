@@ -4,8 +4,8 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
+import src.models  # noqa: F401
 from src.lib.config import get_settings
-from src.models import Carrier, Client, Order, Product, RefreshToken, User, Warehouse
 
 config = context.config
 
@@ -14,9 +14,6 @@ if config.config_file_name is not None:
 
 target_metadata = SQLModel.metadata
 config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("%", "%%"))
-
-# Imported so autogenerate sees every table.
-_MODELS = (Carrier, Client, Order, Product, RefreshToken, User, Warehouse)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

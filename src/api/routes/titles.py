@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
 from src.api.deps import CurrentUser
-from src.schemas import ChatTitleRequest, ChatTitleResponse
-from src.services.titles import chat_title
+from src.schemas.questions.title import ChatTitleRequest, ChatTitleResponse
+from src.services.questions.titles import chat_title
 
 router = APIRouter(prefix="/chat-titles", tags=["chat-titles"])
 

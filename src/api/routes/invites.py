@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 
 from src.api.deps import CurrentUser, SessionDep, SettingsDep
-from src.enums import UserRole
-from src.schemas import AcceptInviteRequest, InviteRequest
-from src.services.invites import accept_invite, create_invite
+from src.enums.identity import UserRole
+from src.schemas.identity.invite import AcceptInviteRequest, InviteRequest
+from src.services.identity.invites import accept_invite, create_invite
 
 router = APIRouter(prefix="/invites", tags=["invites"])
 

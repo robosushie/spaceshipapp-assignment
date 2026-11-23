@@ -2,20 +2,16 @@ from fastapi import APIRouter, HTTPException, Request, Response
 
 from src.api.deps import SessionDep, SettingsDep
 from src.lib.rate_limit import login_limiter
-from src.schemas import (
-    AccessTokenResponse,
-    ForgotPasswordRequest,
-    LoginRequest,
-    ResetPasswordRequest,
-)
-from src.services.auth import (
+from src.schemas.identity.password import ForgotPasswordRequest, ResetPasswordRequest
+from src.schemas.identity.session import AccessTokenResponse, LoginRequest
+from src.services.identity.auth import (
     authenticate,
     issue_tokens,
     revoke_refresh,
     rotate_refresh,
     set_refresh_cookie,
 )
-from src.services.password_reset import request_reset, reset_password
+from src.services.identity.password_reset import request_reset, reset_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

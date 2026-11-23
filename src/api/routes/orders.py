@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 
 from src.api.deps import CurrentUser, SessionDep
-from src.enums import OrderStatus
-from src.schemas import OrderPage, OrderRead
-from src.services.orders import OrderFilterError, get_order, list_orders, parse_filters
+from src.enums.orders import OrderStatus
+from src.schemas.orders.order import OrderPage, OrderRead
+from src.services.orders.orders import OrderFilterError, get_order, list_orders, parse_filters
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 

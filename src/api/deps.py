@@ -8,7 +8,7 @@ from sqlmodel import Session
 from src.lib.config import Settings, get_settings
 from src.lib.db import get_session
 from src.lib.security import decode_access_token
-from src.models import User
+from src.models.identity.user import User
 
 bearer = HTTPBearer(auto_error=False)
 

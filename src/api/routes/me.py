@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
 from src.api.deps import CurrentUser, SessionDep
-from src.schemas import PasswordChange, ProfileUpdate, UserPublic
-from src.services.profile import change_password, update_profile
+from src.schemas.identity.profile import PasswordChange, ProfileUpdate, UserPublic
+from src.services.identity.profile import change_password, update_profile
 
 router = APIRouter(prefix="/me", tags=["me"])
 

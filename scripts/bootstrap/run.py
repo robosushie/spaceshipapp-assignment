@@ -19,12 +19,18 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.enums import OrderStatus, UserRole  # noqa: E402
+from src.enums.identity import UserRole  # noqa: E402
+from src.enums.orders import OrderStatus  # noqa: E402
 from src.lib.config import get_settings  # noqa: E402
 from src.lib.db import engine  # noqa: E402
 from src.lib.security import hash_password  # noqa: E402
-from src.models import Carrier, Client, Order, Product, User, Warehouse  # noqa: E402
-from src.services.auth import normalize_email  # noqa: E402
+from src.models.catalog.carrier import Carrier  # noqa: E402
+from src.models.catalog.client import Client  # noqa: E402
+from src.models.catalog.product import Product  # noqa: E402
+from src.models.catalog.warehouse import Warehouse  # noqa: E402
+from src.models.identity.user import User  # noqa: E402
+from src.models.orders.order import Order  # noqa: E402
+from src.services.identity.auth import normalize_email  # noqa: E402
 
 
 def _write(name: str, rows: Sequence[Mapping[str, object]]) -> None:
@@ -94,6 +100,24 @@ def _money(value: object) -> Decimal:
     return Decimal(str(value))
 
 
+def _upsert_users(session: Session, rows: list[dict[str, object]]) -> None:
+    for row in rows:
+        email = normalize_email(str(row["email"]))
+        password_hash = hash_password(str(row["password"]))
+        role = UserRole(str(row["role"]))
+        name = str(row.get("name") or "")
+        user = session.exec(select(User).where(User.email == email)).first()
+        if user is None:
+            session.add(User(email=email, name=name, password_hash=password_hash, role=role))
+            continue
+        user.name = name
+        user.password_hash = password_hash
+        user.role = role
+        user.invite_token_hash = None
+        user.invite_expires_at = None
+        session.add(user)
+
+
 def _upsert_admin(session: Session) -> None:
     settings = get_settings()
     email = settings.bootstrap_admin_email.strip()
@@ -119,6 +143,7 @@ def load_json() -> None:
     carriers = _load_json("carriers.json")
     products = _load_json("products.json")
     orders = _load_json("orders.json")
+    users = _load_json("users.json")
     with Session(engine) as session:
         for row in clients:
             session.merge(Client(client_id=str(row["client_id"])))
@@ -154,6 +179,7 @@ def load_json() -> None:
                     promo_discount_pct=int(str(row["promo_discount_pct"])),
                 )
             )
+        _upsert_users(session, users)
         _upsert_admin(session)
         session.commit()
 

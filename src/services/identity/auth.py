@@ -11,8 +11,9 @@ from src.lib.security import (
     verify_password,
     verify_password_dummy,
 )
-from src.models import RefreshToken, User
-from src.schemas import AccessTokenResponse
+from src.models.identity.refresh_token import RefreshToken
+from src.models.identity.user import User
+from src.schemas.identity.session import AccessTokenResponse
 
 _LOGIN_DETAIL = "Email or password is incorrect."
 _REFRESH_COOKIE = "refresh_token"

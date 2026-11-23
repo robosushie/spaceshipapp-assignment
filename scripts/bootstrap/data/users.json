@@ -1,0 +1,14 @@
+[
+  {
+    "email": "admin@spaceship.test",
+    "name": "Admin",
+    "role": "admin",
+    "password": "spaceship_1234"
+  },
+  {
+    "email": "member@spaceship.test",
+    "name": "Member",
+    "role": "member",
+    "password": "spaceship_1234"
+  }
+]

@@ -5,9 +5,9 @@ from sqlmodel import Session, select
 
 from src.lib.config import Settings
 from src.lib.security import hash_password, hash_token, new_refresh_token
-from src.models import User
-from src.services.auth import normalize_email
-from src.services.mail import MailError, send_reset
+from src.models.identity.user import User
+from src.services.identity.auth import normalize_email
+from src.services.identity.mail import MailError, send_reset
 
 _RESET_HOURS = 1
 

@@ -19,7 +19,7 @@ def test_unknown_email_does_not_send_a_reset(client: TestClient, monkeypatch: Mo
         called = True
         return {"id": "email_1"}
 
-    monkeypatch.setattr("src.services.mail.resend.Emails.send", send)
+    monkeypatch.setattr("src.services.identity.mail.resend.Emails.send", send)
     missing = client.post("/v1/auth/forgot", json={"email": "missing@example.com"})
     other = client.post("/v1/auth/forgot", json={"email": "other@example.com"})
     assert missing.status_code == 204
@@ -43,7 +43,7 @@ def test_reset_mail_sets_a_usable_password(
         sent.update(payload)
         return {"id": "email_1"}
 
-    monkeypatch.setattr("src.services.mail.resend.Emails.send", send)
+    monkeypatch.setattr("src.services.identity.mail.resend.Emails.send", send)
     with caplog.at_level(logging.DEBUG):
         response = client.post("/v1/auth/forgot", json={"email": "analyst@spaceship.local"})
     assert response.status_code == 204

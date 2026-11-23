@@ -4,9 +4,16 @@ from typing import Any, cast
 from sqlalchemy import case
 from sqlmodel import Session, col, func, select
 
-from src.enums import OrderStatus
-from src.models import Order, Warehouse
-from src.schemas import CarrierMetric, MetricsResponse, MetricTotals, RegionMetric, StatusCount
+from src.enums.orders import OrderStatus
+from src.models.catalog.warehouse import Warehouse
+from src.models.orders.order import Order
+from src.schemas.orders.metrics import (
+    CarrierMetric,
+    MetricsResponse,
+    MetricTotals,
+    RegionMetric,
+    StatusCount,
+)
 
 _REGIONS = ("UK", "EU", "US-E", "US-C", "US-W")
 

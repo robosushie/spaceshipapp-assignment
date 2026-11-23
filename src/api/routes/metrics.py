@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
 from src.api.deps import CurrentUser, SessionDep
-from src.schemas import MetricsResponse
-from src.services.metrics import get_metrics
+from src.schemas.orders.metrics import MetricsResponse
+from src.services.orders.metrics import get_metrics
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 

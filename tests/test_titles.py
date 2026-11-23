@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
-from src.services.titles import chat_title
+from src.services.questions.titles import chat_title
 
 
 def test_chat_titles_require_a_token(client: TestClient) -> None:
@@ -11,7 +11,7 @@ def test_chat_titles_require_a_token(client: TestClient) -> None:
 
 def test_missing_openai_key_keeps_the_message(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "src.services.titles.get_settings",
+        "src.services.questions.titles.get_settings",
         lambda: type("Settings", (), {"openai_api_key": ""})(),
     )
     assert chat_title("Plot delivered orders by week") == "Plot delivered orders by week"
@@ -33,8 +33,8 @@ def test_chat_title_uses_the_model_text(monkeypatch: MonkeyPatch) -> None:
         return Response()
 
     monkeypatch.setattr(
-        "src.services.titles.get_settings",
+        "src.services.questions.titles.get_settings",
         lambda: type("Settings", (), {"openai_api_key": "test-key"})(),
     )
-    monkeypatch.setattr("src.services.titles.httpx.post", post)
+    monkeypatch.setattr("src.services.questions.titles.httpx.post", post)
     assert chat_title("Plot delivered orders by week") == "Weekly deliveries"

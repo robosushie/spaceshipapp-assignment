@@ -4,7 +4,7 @@ import re
 from fastapi.testclient import TestClient
 from pytest import LogCaptureFixture, MonkeyPatch
 
-from src.enums import UserRole
+from src.enums.identity import UserRole
 from src.lib.config import get_settings
 from tests.helpers import add_user
 
@@ -68,7 +68,7 @@ def test_member_cannot_invite(client: TestClient, monkeypatch: MonkeyPatch) -> N
         called = True
         return {"id": "email_1"}
 
-    monkeypatch.setattr("src.services.mail.resend.Emails.send", send)
+    monkeypatch.setattr("src.services.identity.mail.resend.Emails.send", send)
     token = _token(client)
     response = client.post(
         "/v1/invites",
@@ -94,7 +94,7 @@ def test_invite_sends_mail_without_logging_the_key(
         sent.update(payload)
         return {"id": "email_1"}
 
-    monkeypatch.setattr("src.services.mail.resend.Emails.send", send)
+    monkeypatch.setattr("src.services.identity.mail.resend.Emails.send", send)
     token = _token(client, "admin@spaceship.local")
     with caplog.at_level(logging.DEBUG):
         response = client.post(
