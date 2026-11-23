@@ -33,6 +33,11 @@ class MetricTotals(BaseModel):
 
 class MetricsResponse(BaseModel):
     totals: MetricTotals
+    carriers: int
+    warehouses: int
+    clients: int
+    products: int
+    deliveries_last_month: int
     by_status: list[StatusCount]
     by_region: list[RegionMetric]
     by_carrier: list[CarrierMetric]

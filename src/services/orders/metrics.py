@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from typing import Any, cast
 
@@ -5,6 +6,9 @@ from sqlalchemy import case
 from sqlmodel import Session, col, func, select
 
 from src.enums.orders import OrderStatus
+from src.models.catalog.carrier import Carrier
+from src.models.catalog.client import Client
+from src.models.catalog.product import Product
 from src.models.catalog.warehouse import Warehouse
 from src.models.orders.order import Order
 from src.schemas.orders.metrics import (
@@ -16,6 +20,8 @@ from src.schemas.orders.metrics import (
 )
 
 _REGIONS = ("UK", "EU", "US-E", "US-C", "US-W")
+_LAST_MONTH_START = date(2025, 12, 1)
+_LAST_MONTH_END = date(2025, 12, 30)
 
 
 def _money(value: object) -> Decimal:
@@ -78,6 +84,15 @@ def get_metrics(session: Session) -> MetricsResponse:
 
     revenue = session.exec(select(func.coalesce(func.sum(Order.order_value_usd), 0))).one()
     order_count = session.exec(select(func.count()).select_from(Order)).one()
+    deliveries_last_month = session.exec(
+        select(func.count())
+        .select_from(Order)
+        .where(
+            Order.status == OrderStatus.delivered,
+            col(Order.delivery_date) >= _LAST_MONTH_START,
+            col(Order.delivery_date) <= _LAST_MONTH_END,
+        )
+    ).one()
     totals = MetricTotals(
         orders=int(order_count),
         revenue_usd=_money(revenue),
@@ -87,7 +102,19 @@ def get_metrics(session: Session) -> MetricsResponse:
     )
     return MetricsResponse(
         totals=totals,
+        carriers=_count(session, Carrier),
+        warehouses=_count(session, Warehouse),
+        clients=_count(session, Client),
+        products=_count(session, Product),
+        deliveries_last_month=int(deliveries_last_month),
         by_status=by_status,
         by_region=by_region,
         by_carrier=by_carrier,
     )
+
+
+def _count(
+    session: Session,
+    model: type[Carrier] | type[Warehouse] | type[Client] | type[Product],
+) -> int:
+    return int(session.exec(select(func.count()).select_from(model)).one())

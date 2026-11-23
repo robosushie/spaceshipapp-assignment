@@ -32,6 +32,11 @@ export type Metrics = {
     exceptions: number
     in_transit: number
   }
+  carriers: number
+  warehouses: number
+  clients: number
+  products: number
+  deliveries_last_month: number
   by_status: { status: string; count: number }[]
   by_region: { region: string; orders: number; revenue_usd: string }[]
   by_carrier: { carrier: string; orders: number; delayed: number; exceptions: number }[]

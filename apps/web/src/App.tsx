@@ -1,10 +1,12 @@
 import type { ReactNode } from "react"
 import { Navigate, Route, Routes } from "react-router"
 
+import { DeskFrame } from "@/components/DeskFrame"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/lib/auth"
 import { AcceptInvite } from "@/pages/AcceptInvite"
-import { Desk } from "@/pages/Desk"
+import { Dashboard } from "@/pages/Dashboard"
+import { Details } from "@/pages/Details"
 import { ForgotPassword } from "@/pages/ForgotPassword"
 import { Login } from "@/pages/Login"
 import { ResetPassword } from "@/pages/ResetPassword"
@@ -35,13 +37,15 @@ export function App() {
       <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route
-        path="/dashboard"
         element={
           <Gate>
-            <Desk />
+            <DeskFrame />
           </Gate>
         }
-      />
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/details" element={<Details />} />
+      </Route>
       <Route
         path="/settings"
         element={

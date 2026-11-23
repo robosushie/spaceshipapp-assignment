@@ -1,53 +1,93 @@
-import { LayoutDashboardIcon, LogOutIcon, RocketIcon, SettingsIcon } from "lucide-react"
+import type { ReactNode } from "react"
+import { LayoutDashboardIcon, ListIcon, LogOutIcon, RocketIcon, SettingsIcon } from "lucide-react"
 import { Link } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
+import { cn } from "@/lib/utils"
 
-export function Rail({ current }: { current: "dashboard" | "settings" }) {
+type RailPage = "dashboard" | "details" | "settings"
+
+export function Rail({ current, agent }: { current: RailPage; agent?: ReactNode }) {
   const { signOut } = useAuth()
-  const active = "bg-accent text-foreground"
+
+  const links = (
+    <>
+      <RailLink to="/dashboard" label="Dashboard" current={current === "dashboard"}>
+        <LayoutDashboardIcon className="size-5" />
+      </RailLink>
+      <RailLink to="/details" label="Details" current={current === "details"}>
+        <ListIcon className="size-5" />
+      </RailLink>
+    </>
+  )
+
+  const account = (
+    <>
+      <RailLink to="/settings" label="Settings" current={current === "settings"}>
+        <SettingsIcon className="size-5" />
+      </RailLink>
+      <Button
+        variant="ghost"
+        size="icon-lg"
+        type="button"
+        aria-label="Sign out"
+        onClick={() => void signOut()}
+      >
+        <LogOutIcon className="size-5" />
+      </Button>
+    </>
+  )
 
   return (
-    <nav
-      aria-label="Desk"
-      className="flex h-full w-16 shrink-0 flex-col items-center gap-1 border-e bg-card py-3"
-    >
-      <div className="mb-3 flex size-10 items-center justify-center text-foreground">
-        <RocketIcon className="size-6" aria-hidden />
-        <span className="sr-only">Spaceship</span>
-      </div>
-      <Button variant="ghost" size="icon-lg" asChild>
-        <Link
-          to="/dashboard"
-          aria-label="Dashboard"
-          aria-current={current === "dashboard" ? "page" : undefined}
-          className={current === "dashboard" ? active : undefined}
-        >
-          <LayoutDashboardIcon className="size-5" />
-        </Link>
-      </Button>
-      <div className="mt-auto flex flex-col items-center gap-1">
-        <Button variant="ghost" size="icon-lg" asChild>
-          <Link
-            to="/settings"
-            aria-label="Settings"
-            aria-current={current === "settings" ? "page" : undefined}
-            className={current === "settings" ? active : undefined}
-          >
-            <SettingsIcon className="size-5" />
-          </Link>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-lg"
-          type="button"
-          aria-label="Sign out"
-          onClick={() => void signOut()}
-        >
-          <LogOutIcon className="size-5" />
-        </Button>
-      </div>
-    </nav>
+    <>
+      <nav
+        aria-label="Desk"
+        className={cn(
+          "hidden h-full w-16 shrink-0 flex-col items-center gap-1 border-e bg-card py-3 md:flex",
+          agent && "pb-16",
+        )}
+      >
+        <div className="mb-3 flex size-10 items-center justify-center text-foreground">
+          <RocketIcon className="size-6" aria-hidden />
+          <span className="sr-only">Spaceship</span>
+        </div>
+        {links}
+        <div className="mt-auto flex flex-col items-center gap-1">{account}</div>
+      </nav>
+      <nav
+        aria-label="Desk"
+        className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t bg-card px-1 md:hidden"
+      >
+        {agent}
+        {links}
+        {account}
+      </nav>
+    </>
+  )
+}
+
+function RailLink({
+  to,
+  label,
+  current,
+  children,
+}: {
+  to: string
+  label: string
+  current: boolean
+  children: ReactNode
+}) {
+  return (
+    <Button variant="ghost" size="icon-lg" asChild>
+      <Link
+        to={to}
+        aria-label={label}
+        aria-current={current ? "page" : undefined}
+        className={current ? "bg-accent text-foreground" : undefined}
+      >
+        {children}
+      </Link>
+    </Button>
   )
 }

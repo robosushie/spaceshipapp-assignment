@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi.testclient import TestClient
 
 from tests.helpers import add_order, add_user
@@ -97,6 +99,21 @@ def test_missing_order_is_404(client: TestClient) -> None:
     token = _token(client)
     response = client.get("/v1/orders/missing", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 404
+
+
+def test_metrics_counts_december_deliveries(client: TestClient) -> None:
+    add_order("ORD-OCT", date(2025, 10, 19))
+    add_order("ORD-DEC", date(2025, 12, 15))
+    token = _token(client)
+    response = client.get("/v1/metrics", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["deliveries_last_month"] == 1
+    assert body["carriers"] == 1
+    assert body["warehouses"] == 1
+    assert body["clients"] == 1
+    assert body["products"] == 1
+    assert body["totals"]["orders"] == 2
 
 
 def test_questions_without_a_key_are_unavailable(client: TestClient) -> None:

@@ -88,13 +88,18 @@ Money is a decimal string so a float cannot round it. `delivery_date` is `null` 
     "exceptions": 11,
     "in_transit": 27
   },
+  "carriers": 6,
+  "warehouses": 8,
+  "clients": 24,
+  "products": 12,
+  "deliveries_last_month": 40,
   "by_status": [{ "status": "delivered", "count": 304 }],
   "by_region": [{ "region": "UK", "orders": 54, "revenue_usd": "0.00" }],
   "by_carrier": [{ "carrier": "FedEx", "orders": 89, "delayed": 0, "exceptions": 0 }]
 }
 ```
 
-`by_status` includes every status, including those with a zero count, in the enum order. `revenue_usd` is the sum of `order_value_usd`. Promo percent is not subtracted.
+`by_status` includes every status, including those with a zero count, in the enum order. `revenue_usd` is the sum of `order_value_usd`. Promo percent is not subtracted. `carriers`, `warehouses`, `clients`, and `products` are row counts of those tables. `deliveries_last_month` counts orders with status `delivered` and a `delivery_date` from 2025-12-01 through 2025-12-30, the book's current month.
 
 ## Questions
 

@@ -137,7 +137,7 @@ export function Settings() {
   return (
     <div className="flex h-svh overflow-hidden">
       <Rail current="settings" />
-      <main className="min-h-0 flex-1 overflow-y-auto">
+      <main className="min-h-0 flex-1 overflow-y-auto pb-16 md:pb-0">
         <div className="mx-auto flex max-w-lg flex-col gap-8 px-6 py-8">
           <h1 className="text-[28px] leading-[1.14] tracking-[-0.022em]">Settings</h1>
           {profile === null && profileError === null ? (
