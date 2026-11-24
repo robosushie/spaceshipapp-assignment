@@ -9,7 +9,7 @@ import {
   type Ref,
   type SetStateAction,
 } from "react"
-import { PlusIcon, SendIcon, XIcon } from "lucide-react"
+import { InfoIcon, PlusIcon, SendIcon, XIcon } from "lucide-react"
 import {
   Area,
   AreaChart,
@@ -45,6 +45,7 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
@@ -337,7 +338,9 @@ export function AgentPanel({
                           </BubbleContent>
                         </Bubble>
                         {message.charts.length > 0 ? <PlotDialog charts={message.charts} /> : null}
-                        {message.explanation ? <ExplanationBlock explanation={message.explanation} /> : null}
+                        {message.explanation ? (
+                          <ExplanationInfo explanation={message.explanation} />
+                        ) : null}
                       </MessageContent>
                     </Message>
                   </MessageScrollerItem>
@@ -706,7 +709,7 @@ function PlotPlaceholder() {
   )
 }
 
-function ExplanationBlock({ explanation }: { explanation: QuestionExplanation }) {
+function ExplanationInfo({ explanation }: { explanation: QuestionExplanation }) {
   const labels = [
     { title: "Tool", values: [explanation.tool === "forecast" ? "Forecast" : "Query"] },
     { title: "Filters", values: explanation.filters },
@@ -714,29 +717,50 @@ function ExplanationBlock({ explanation }: { explanation: QuestionExplanation })
     { title: "Dimensions", values: explanation.dimensions },
   ]
   return (
-    <div className="mt-2 w-full max-w-[85%] rounded-2xl border border-border bg-background p-3 text-sm">
-      <p className="text-muted-foreground">How this was computed</p>
-      <dl className="mt-3 flex flex-col gap-3">
-        {labels.map((item) => (
-          <div key={item.title}>
-            <dt className="text-muted-foreground">{item.title}</dt>
-            <dd className="mt-1">
-              {item.values.length > 0 ? item.values.join(" · ") : "None"}
-            </dd>
-          </div>
-        ))}
-        {explanation.plan ? (
-          <div>
-            <dt className="text-muted-foreground">Plan</dt>
-            <dd className="mt-1 whitespace-pre-wrap break-words font-mono text-xs">{explanation.plan}</dd>
-          </div>
-        ) : null}
-      </dl>
-      {explanation.rows.length > 0 ? (
-        <div className="mt-4 max-h-48 overflow-auto">
-          <RowsTable rows={explanation.rows} />
-        </div>
-      ) : null}
+    <div className="flex w-full max-w-[85%] justify-end">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            aria-label="How this was computed"
+            className="text-muted-foreground"
+          >
+            <InfoIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          side="top"
+          className="flex max-h-[min(24rem,70svh)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-y-auto"
+        >
+          <p className="font-medium">How this was computed</p>
+          <dl className="flex flex-col gap-3">
+            {labels.map((item) => (
+              <div key={item.title}>
+                <dt className="text-muted-foreground">{item.title}</dt>
+                <dd className="mt-1">
+                  {item.values.length > 0 ? item.values.join(" · ") : "None"}
+                </dd>
+              </div>
+            ))}
+            {explanation.plan ? (
+              <div>
+                <dt className="text-muted-foreground">Plan</dt>
+                <dd className="mt-1 whitespace-pre-wrap break-words font-mono text-xs">
+                  {explanation.plan}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+          {explanation.rows.length > 0 ? (
+            <div className="max-h-48 overflow-auto">
+              <RowsTable rows={explanation.rows} />
+            </div>
+          ) : null}
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }
