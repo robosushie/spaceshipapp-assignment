@@ -33,8 +33,8 @@ The repo is a Brix `apps-src` project: the Vite app lives in `apps/web`, the Fas
 | Alembic | The only migration path. The app does not call `create_all`. |
 | Ruff | Format and lint for the Python tree. |
 | mypy | Typecheck for `src/` and `scripts/`. Migrations are excluded. |
-| LangGraph | The steps of a question: write SQL, check and run it, explain the rows, with two repairs. |
-| BAML (Boundary) | The structured calls to Anthropic. The model returns one SELECT plus whether a plot is required, then a paragraph. |
+| LangGraph | The question graph. Each step is a LangGraph tool: choose, write query, run SQL, explain, or forecast. |
+| BAML (Boundary) | Typed Anthropic calls wrapped as tools (`ChooseTool`, `WriteQuery`, `ExplainRows`). Computation tools never invent numbers. |
 | Vite + React + TypeScript | The desk UI. |
 | Tailwind + shadcn | Components and tokens. Charts go through the shadcn Chart wrapper around Recharts. |
 | pnpm + concurrently | `pnpm dev` starts the API and the web app together. |
@@ -49,21 +49,25 @@ Sync SQLAlchemy is deliberate. The book is 400 rows. The seed script, Alembic, a
 apps/web  --proxy /v1 and /health-->  src/api/routes
                                          |
                                          v
-                                    src/services
-                                    /          \
-                          SQLModel session    src/agent  (questions only)
-                                                 |
-                                            BAML functions
-                                                 |
-                                              Anthropic
+                                    src/services/questions
+                                         |
+                                      Redis queue
+                                         |
+                                    src/agent/worker
+                                         |
+                                    LangGraph tools
+                           /            |             \
+                    BAML tools     run_sql        forecast_demand
+                           \            |             /
+                              Anthropic / Postgres
 ```
 
 Rules that keep the path honest:
 
 - A route does not run a query and does not import BAML or LangGraph.
 - A service owns one use case. It does not read `Request` except where auth already turned the caller into a user.
-- `src/agent/` holds the graph, the nodes, the schema prompt, the SQL guard, and the generated BAML client. Model SQL is parsed and allow-listed before it runs. It is one read-only SELECT on the shipping book.
-- `src/services/questions.py` is the only module that invokes the compiled graph.
+- `src/agent/` holds the graph, the LangGraph tools, the schema prompt, the SQL guard, and the generated BAML client. Model SQL is parsed and allow-listed before it runs. It is one read-only SELECT on the shipping book.
+- `src/services/questions/questions.py` enqueues the question; the agent worker invokes the compiled graph on its own database session.
 - Settings are read once in `src/lib/config.py`. Route handlers do not touch `os.environ`.
 
 ## Schema
@@ -102,15 +106,20 @@ Docker runs Postgres only. The API and the web app run on the host. There is no 
 
 ## Agent
 
-A question is a short graph. BAML `ChooseTool` picks `query` or `forecast` before any SQL.
+A question follows the assignment flow as a constrained LangGraph tool chain:
 
-1. BAML `WriteQuery` sees the DDL for `clients`, `warehouses`, `carriers`, `products`, and `orders`, and returns one SELECT plus `plot_required`. `users` and `refresh_tokens` are not in that prompt.
-2. The guard parses the statement, allows one SELECT on those five tables, then Postgres `EXPLAIN`s it and runs it read-only with a 5 second limit and a 200 row cap.
-3. A bad statement or a plot with no rows goes back to `WriteQuery` with the error, at most twice. A write is refused and is not repaired.
-4. BAML `ExplainRows` writes the paragraph from the rows Postgres returned.
-5. A forecast question skips that SELECT. Python fills monthly quantity through 30 Dec 2025, chooses a forecasting method, and projects the months the question asks for. When the question names none, those months start the month after 30 Dec 2025. The recommended units are that total.
+`User question → choose_tool → write_query|forecast_demand → run_sql (query path) → explain_rows → answer + explanation + chart`
 
-If the key is missing or the model call fails, the service returns a problem response and does not guess.
+1. The `choose_tool` tool calls BAML `ChooseTool` and picks `query` or `forecast`.
+2. On the query path, `write_query` calls BAML `WriteQuery` against the DDL for `clients`, `warehouses`, `carriers`, `products`, and `orders`. It returns one SELECT plus `plot_required`. `users` and `refresh_tokens` are not in that prompt.
+3. The `run_sql` tool runs the guard: one allow-listed SELECT, Postgres `EXPLAIN`, read-only with a 5 second limit and a 200 row cap.
+4. A bad statement or a plot with no rows goes back to `write_query` with the error, at most twice. A write is refused and is not repaired.
+5. `explain_rows` calls BAML `ExplainRows` from the rows Postgres returned.
+6. On the forecast path, `forecast_demand` skips SQL. Python fills monthly quantity through 30 Dec 2025, chooses a forecasting method, and projects the months the question asks for. When the question names none, those months start the month after 30 Dec 2025. The recommended units are that total. The model does not invent the numbers.
+
+Every reply includes an explanation object: tool name, filters, metrics, dimensions, the plan (SQL or forecast method), and the underlying rows.
+
+If the key is missing, Redis is down, or the model call fails, the service returns a problem response and does not guess.
 
 ## What is intentionally out of scope
 

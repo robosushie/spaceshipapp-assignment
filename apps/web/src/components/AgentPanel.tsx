@@ -58,7 +58,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ApiError, api } from "@/lib/api"
 import { chatText, emptyThread, type ChatDesk, type ChatMessage, type ChatThread } from "@/lib/chats"
 import { cn } from "@/lib/utils"
-import type { QuestionChart, QuestionResult } from "@/types/desk"
+import type { QuestionChart, QuestionExplanation, QuestionResult } from "@/types/desk"
 
 const CHAT_MIN = 220
 const CHAT_MAX = 720
@@ -229,6 +229,7 @@ export function AgentPanel({
         role: "assistant",
         text: result.answer,
         charts: result.plot_required && result.chart ? [result.chart] : [],
+        explanation: result.explanation,
       })
     } catch (caught) {
       const unavailable = caught instanceof ApiError && caught.status === 503
@@ -336,6 +337,7 @@ export function AgentPanel({
                           </BubbleContent>
                         </Bubble>
                         {message.charts.length > 0 ? <PlotDialog charts={message.charts} /> : null}
+                        {message.explanation ? <ExplanationBlock explanation={message.explanation} /> : null}
                       </MessageContent>
                     </Message>
                   </MessageScrollerItem>
@@ -701,6 +703,68 @@ function PlotPlaceholder() {
       />
       <line x1="16" y1="86" x2="304" y2="86" stroke="currentColor" strokeWidth="1.5" />
     </svg>
+  )
+}
+
+function ExplanationBlock({ explanation }: { explanation: QuestionExplanation }) {
+  const labels = [
+    { title: "Tool", values: [explanation.tool === "forecast" ? "Forecast" : "Query"] },
+    { title: "Filters", values: explanation.filters },
+    { title: "Metrics", values: explanation.metrics },
+    { title: "Dimensions", values: explanation.dimensions },
+  ]
+  return (
+    <div className="mt-2 w-full max-w-[85%] rounded-2xl border border-border bg-background p-3 text-sm">
+      <p className="text-muted-foreground">How this was computed</p>
+      <dl className="mt-3 flex flex-col gap-3">
+        {labels.map((item) => (
+          <div key={item.title}>
+            <dt className="text-muted-foreground">{item.title}</dt>
+            <dd className="mt-1">
+              {item.values.length > 0 ? item.values.join(" · ") : "None"}
+            </dd>
+          </div>
+        ))}
+        {explanation.plan ? (
+          <div>
+            <dt className="text-muted-foreground">Plan</dt>
+            <dd className="mt-1 whitespace-pre-wrap break-words font-mono text-xs">{explanation.plan}</dd>
+          </div>
+        ) : null}
+      </dl>
+      {explanation.rows.length > 0 ? (
+        <div className="mt-4 max-h-48 overflow-auto">
+          <RowsTable rows={explanation.rows} />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function RowsTable({ rows }: { rows: Record<string, string>[] }) {
+  const columns = Object.keys(rows[0] ?? {})
+  if (columns.length === 0) {
+    return null
+  }
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {columns.map((column) => (
+            <TableHead key={column}>{columnLabel(column)}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row, index) => (
+          <TableRow key={`${columns.map((column) => row[column]).join("|")}-${index}`}>
+            {columns.map((column) => (
+              <TableCell key={column}>{row[column] ?? ""}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 

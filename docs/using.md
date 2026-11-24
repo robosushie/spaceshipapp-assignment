@@ -57,7 +57,7 @@ Ask questions in plain language, then send one. Examples that match the book:
 - Which carrier delivered the most in the UK?
 - Plot order value by region.
 
-The reply is a short paragraph. If the question needs a plot, the reply also includes a small preview. Click it to open the chart. Plot and Data sit on one row: the chart, and the rows behind it. A line or area is for time, a bar is a comparison, a pie is a small share of a whole, and a scatter is two numbers.
+The reply is a short paragraph, plus how it was computed: tool, filters, metrics, dimensions, the plan (SQL or forecast method), and the rows behind the answer. If the question needs a plot, the reply also includes a small preview. Click it to open the chart. Plot and Data sit on one row: the chart, and the rows behind it. A line or area is for time, a bar is a comparison, a pie is a small share of a whole, and a scatter is two numbers.
 
 The question goes to the API, which waits for the agent. The desk, the table, and the summary do not need that. A question does. Set `ANTHROPIC_API_KEY`, point `REDIS_URL` at Redis, and run `python -m src.agent.worker`. Without them the reply is "Questions are unavailable until an Anthropic key is configured." and there is no plot. With `OPENAI_API_KEY`, the tab is renamed from the first question. Without it, the tab keeps that question as its title.
 

@@ -1,4 +1,4 @@
-import type { QuestionChart } from "@/types/desk"
+import type { QuestionChart, QuestionExplanation } from "@/types/desk"
 
 const STORAGE_KEY = "spaceship-chats:v1"
 const CHART_TYPES = new Set(["bar", "line", "area", "pie", "scatter"])
@@ -10,6 +10,7 @@ export type ChatMessage = {
   role: "user" | "assistant"
   text: string
   charts: QuestionChart[]
+  explanation?: QuestionExplanation
 }
 
 export type ChatThread = {
@@ -103,6 +104,7 @@ function parseMessage(value: unknown): ChatMessage | null {
     role?: unknown
     text?: unknown
     charts?: unknown
+    explanation?: unknown
   }
   if (typeof record.id !== "string" || typeof record.text !== "string") {
     return null
@@ -111,7 +113,54 @@ function parseMessage(value: unknown): ChatMessage | null {
     return null
   }
   const charts = Array.isArray(record.charts) ? record.charts.filter(isChart) : []
-  return { id: record.id, role: record.role, text: chatText(record.text), charts }
+  const explanation = parseExplanation(record.explanation)
+  return {
+    id: record.id,
+    role: record.role,
+    text: chatText(record.text),
+    charts,
+    ...(explanation ? { explanation } : {}),
+  }
+}
+
+function parseExplanation(value: unknown): QuestionExplanation | undefined {
+  if (!value || typeof value !== "object") {
+    return undefined
+  }
+  const record = value as {
+    tool?: unknown
+    filters?: unknown
+    metrics?: unknown
+    dimensions?: unknown
+    plan?: unknown
+    rows?: unknown
+  }
+  if (record.tool !== "query" && record.tool !== "forecast") {
+    return undefined
+  }
+  if (typeof record.plan !== "string") {
+    return undefined
+  }
+  if (
+    !Array.isArray(record.filters) ||
+    !record.filters.every((item) => typeof item === "string") ||
+    !Array.isArray(record.metrics) ||
+    !record.metrics.every((item) => typeof item === "string") ||
+    !Array.isArray(record.dimensions) ||
+    !record.dimensions.every((item) => typeof item === "string") ||
+    !Array.isArray(record.rows) ||
+    !record.rows.every((row) => row !== null && typeof row === "object")
+  ) {
+    return undefined
+  }
+  return {
+    tool: record.tool,
+    filters: record.filters,
+    metrics: record.metrics,
+    dimensions: record.dimensions,
+    plan: record.plan,
+    rows: record.rows as Record<string, string>[],
+  }
 }
 
 export function chatText(text: string): string {
