@@ -328,19 +328,26 @@ export function AgentPanel({
                   >
                     <Message align={message.role === "user" ? "end" : "start"}>
                       <MessageContent>
-                        <Bubble
-                          variant={message.role === "user" ? "default" : "muted"}
-                          align={message.role === "user" ? "end" : "start"}
-                          className="max-w-[85%]"
+                        <div
+                          className={cn(
+                            "flex w-full max-w-[85%] items-start gap-1",
+                            message.role === "user" && "self-end",
+                          )}
                         >
-                          <BubbleContent className="rounded-2xl px-3 py-2 text-sm">
-                            {chatText(message.text)}
-                          </BubbleContent>
-                        </Bubble>
+                          <Bubble
+                            variant={message.role === "user" ? "default" : "muted"}
+                            align={message.role === "user" ? "end" : "start"}
+                            className="min-w-0 max-w-full flex-1"
+                          >
+                            <BubbleContent className="rounded-2xl px-3 py-2 text-sm">
+                              {chatText(message.text)}
+                            </BubbleContent>
+                          </Bubble>
+                          {message.explanation ? (
+                            <ExplanationInfo explanation={message.explanation} />
+                          ) : null}
+                        </div>
                         {message.charts.length > 0 ? <PlotDialog charts={message.charts} /> : null}
-                        {message.explanation ? (
-                          <ExplanationInfo explanation={message.explanation} />
-                        ) : null}
                       </MessageContent>
                     </Message>
                   </MessageScrollerItem>
@@ -717,24 +724,23 @@ function ExplanationInfo({ explanation }: { explanation: QuestionExplanation }) 
     { title: "Dimensions", values: explanation.dimensions },
   ]
   return (
-    <div className="flex w-full max-w-[85%] justify-end">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            aria-label="How this was computed"
-            className="text-muted-foreground"
-          >
-            <InfoIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          align="end"
-          side="top"
-          className="flex max-h-[min(24rem,70svh)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-y-auto"
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label="How this was computed"
+          className="mt-0 shrink-0 self-start text-muted-foreground"
         >
+          <InfoIcon />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="bottom"
+        className="flex max-h-[min(24rem,70svh)] w-[28rem] max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-y-auto"
+      >
           <p className="font-medium">How this was computed</p>
           <dl className="flex flex-col gap-3">
             {labels.map((item) => (
@@ -759,9 +765,8 @@ function ExplanationInfo({ explanation }: { explanation: QuestionExplanation }) 
               <RowsTable rows={explanation.rows} />
             </div>
           ) : null}
-        </PopoverContent>
-      </Popover>
-    </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
