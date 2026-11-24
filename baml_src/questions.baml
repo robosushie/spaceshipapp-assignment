@@ -18,12 +18,22 @@ enum ForecastMethod {
   HoltTrend @alias("holt_trend")
   SeasonalNaive @alias("seasonal_naive")
   LinearTrend @alias("linear_trend")
+  Mean @alias("mean")
+  Naive @alias("naive")
+  Drift @alias("drift")
+  DampedTrend @alias("damped_trend")
+  Theta @alias("theta")
+  Croston @alias("croston")
+  Sba @alias("sba")
+  Tsb @alias("tsb")
 }
 
 class ToolChoice {
   tool ToolName
   sku string?
   horizon_months int?
+  start_month string?
+  end_month string?
   method ForecastMethod?
 }
 
@@ -47,12 +57,24 @@ function ChooseTool(question: string, as_of: string) -> ToolChoice {
     or to recommend how much inventory to hold.
     Use query for counts, filters, comparisons, trends in the book, and charts of past orders.
     sku is the product SKU when the question names one. Otherwise leave sku null.
-    horizon_months is how many future months to forecast, from 1 to 12.
-    Use 4 when the question does not say. Leave horizon_months null for a query.
+    start_month and end_month are YYYY-MM when the question names a month or a range.
+    June 2027 sets both to 2027-06.
+    March 2026 through June 2027 sets start_month to 2026-03 and end_month to 2027-06.
+    "through December 2026" sets end_month to 2026-12 and leaves start_month null.
+    "next 4 months" leaves both null and sets horizon_months to 4.
+    Leave horizon_months null when start_month or end_month is set.
+    horizon_months is how many future months to forecast, from 1 to 60.
+    Use 4 when the question names no month and does not say how far.
+    Leave horizon_months, start_month, and end_month null for a query.
+    Pass a month inside the book through as written. Do not move it into the future.
     method is auto unless the question names a forecasting method.
     Use moving_average for a moving average, exponential_smoothing for exponential smoothing,
     holt_trend for Holt or a trend, seasonal_naive for seasonal or the same month last year,
-    and linear_trend for a linear trend. Leave method null for a query.
+    linear_trend for a linear trend, mean for the historical average,
+    naive for the last month repeated, drift for drift,
+    damped_trend for a damped trend, theta for theta,
+    croston for Croston, sba for Syntetos-Boylan, and tsb for Teunter-Syntetos-Babai.
+    Leave method null for a query.
 
     Question:
     {{ question }}

@@ -5,13 +5,19 @@ from src.agent.forecasting.common import Series, quantities, units
 _ALPHAS = [step / 10 for step in range(1, 10)]
 
 
-def project(history: Series, horizon: int) -> list[int]:
+def project(history: Series, months: list[str]) -> list[int]:
     series = quantities(history)
     if not series:
-        return [0] * horizon
-    alpha = _best_alpha(series)
-    level = _level(series, alpha)
-    return [units(level)] * horizon
+        return [0] * len(months)
+    return [units(fitted_level(series))] * len(months)
+
+
+def fitted_level(series: list[int]) -> float:
+    if not series:
+        return 0.0
+    if len(series) == 1:
+        return float(series[0])
+    return _level(series, _best_alpha(series))
 
 
 def _best_alpha(series: list[int]) -> float:

@@ -41,6 +41,8 @@ class ToolChoice(BaseModel):
     tool: typing.Optional[types.ToolName] = None
     sku: typing.Optional[str] = None
     horizon_months: typing.Optional[int] = None
+    start_month: typing.Optional[str] = None
+    end_month: typing.Optional[str] = None
     method: typing.Optional[types.ForecastMethod] = None
 
 # #########################################################################

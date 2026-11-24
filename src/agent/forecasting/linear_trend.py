@@ -3,15 +3,15 @@
 from src.agent.forecasting.common import Series, quantities, units
 
 
-def project(history: Series, horizon: int) -> list[int]:
+def project(history: Series, months: list[str]) -> list[int]:
     series = quantities(history)
     if not series:
-        return [0] * horizon
+        return [0] * len(months)
     if len(series) == 1:
-        return [series[0]] * horizon
+        return [series[0]] * len(months)
     slope, intercept = _fit(series)
     start = len(series)
-    return [units(intercept + slope * (start + step)) for step in range(horizon)]
+    return [units(intercept + slope * (start + step)) for step in range(len(months))]
 
 
 def _fit(series: list[int]) -> tuple[float, float]:

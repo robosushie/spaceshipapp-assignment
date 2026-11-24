@@ -54,6 +54,14 @@ class ForecastMethod(str, Enum):
     HoltTrend = "HoltTrend"
     SeasonalNaive = "SeasonalNaive"
     LinearTrend = "LinearTrend"
+    Mean = "Mean"
+    Naive = "Naive"
+    Drift = "Drift"
+    DampedTrend = "DampedTrend"
+    Theta = "Theta"
+    Croston = "Croston"
+    Sba = "Sba"
+    Tsb = "Tsb"
 
 class ToolName(str, Enum):
     Query = "Query"
@@ -78,6 +86,8 @@ class ToolChoice(BaseModel):
     tool: ToolName
     sku: typing.Optional[str] = None
     horizon_months: typing.Optional[int] = None
+    start_month: typing.Optional[str] = None
+    end_month: typing.Optional[str] = None
     method: typing.Optional[ForecastMethod] = None
 
 # #########################################################################

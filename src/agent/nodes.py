@@ -7,6 +7,7 @@ from src.agent.baml_client import b
 from src.agent.baml_client import types as baml_types
 from src.agent.forecast import build_forecast, monthly_quantities
 from src.agent.forecasting import LABELS
+from src.agent.forecasting.common import valid_month
 from src.agent.schema import BOOK_AS_OF
 from src.agent.sql_guard import SqlRejected, run_select
 from src.agent.state import AgentState
@@ -26,6 +27,14 @@ _FORECAST_METHODS = {
     baml_types.ForecastMethod.HoltTrend: "holt_trend",
     baml_types.ForecastMethod.SeasonalNaive: "seasonal_naive",
     baml_types.ForecastMethod.LinearTrend: "linear_trend",
+    baml_types.ForecastMethod.Mean: "mean",
+    baml_types.ForecastMethod.Naive: "naive",
+    baml_types.ForecastMethod.Drift: "drift",
+    baml_types.ForecastMethod.DampedTrend: "damped_trend",
+    baml_types.ForecastMethod.Theta: "theta",
+    baml_types.ForecastMethod.Croston: "croston",
+    baml_types.ForecastMethod.Sba: "sba",
+    baml_types.ForecastMethod.Tsb: "tsb",
 }
 
 
@@ -34,7 +43,6 @@ def choose_tool(state: AgentState) -> dict[str, Any]:
         question=state["question"],
         as_of=state.get("as_of") or BOOK_AS_OF,
     )
-    horizon = 4 if choice.horizon_months is None else choice.horizon_months
     sku = choice.sku.strip() if isinstance(choice.sku, str) else ""
     method = "auto"
     if choice.method is not None:
@@ -42,7 +50,9 @@ def choose_tool(state: AgentState) -> dict[str, Any]:
     return {
         "tool": "forecast" if choice.tool == baml_types.ToolName.Forecast else "query",
         "sku": sku or None,
-        "horizon_months": min(12, max(1, horizon)),
+        "horizon_months": choice.horizon_months if choice.horizon_months is not None else 4,
+        "start_month": valid_month(choice.start_month),
+        "end_month": valid_month(choice.end_month),
         "forecast_method": method,
     }
 
@@ -55,9 +65,11 @@ def forecast(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     configurable = config.get("configurable") or {}
     built = build_forecast(
         monthly_quantities(configurable["session"], state.get("sku")),
-        int(state.get("horizon_months") or 4),
+        state.get("horizon_months"),
         state.get("sku"),
         state.get("forecast_method"),
+        state.get("start_month"),
+        state.get("end_month"),
     )
     return {
         "tool": "forecast",

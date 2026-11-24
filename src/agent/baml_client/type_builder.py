@@ -118,7 +118,7 @@ class ForecastMethodAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.enum("ForecastMethod")
-        self._values: typing.Set[str] = set([  "Auto",  "MovingAverage",  "ExponentialSmoothing",  "HoltTrend",  "SeasonalNaive",  "LinearTrend",  ])
+        self._values: typing.Set[str] = set([  "Auto",  "MovingAverage",  "ExponentialSmoothing",  "HoltTrend",  "SeasonalNaive",  "LinearTrend",  "Mean",  "Naive",  "Drift",  "DampedTrend",  "Theta",  "Croston",  "Sba",  "Tsb",  ])
         self._vals = ForecastMethodValues(self._bldr, self._values)
 
     def type(self) -> baml_py.FieldType:
@@ -168,6 +168,38 @@ class ForecastMethodValues:
     @property
     def LinearTrend(self) -> type_builder.EnumValueViewer:
         return type_builder.EnumValueViewer(self.__bldr.value("LinearTrend"))
+    
+    @property
+    def Mean(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Mean"))
+    
+    @property
+    def Naive(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Naive"))
+    
+    @property
+    def Drift(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Drift"))
+    
+    @property
+    def DampedTrend(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("DampedTrend"))
+    
+    @property
+    def Theta(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Theta"))
+    
+    @property
+    def Croston(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Croston"))
+    
+    @property
+    def Sba(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Sba"))
+    
+    @property
+    def Tsb(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("Tsb"))
     
     
 
@@ -294,7 +326,7 @@ class ToolChoiceAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.class_("ToolChoice")
-        self._properties: typing.Set[str] = set([  "tool",  "sku",  "horizon_months",  "method",  ])
+        self._properties: typing.Set[str] = set([  "tool",  "sku",  "horizon_months",  "start_month",  "end_month",  "method",  ])
         self._props = ToolChoiceProperties(self._bldr, self._properties)
 
     def type(self) -> baml_py.FieldType:
@@ -333,6 +365,14 @@ class ToolChoiceProperties:
     @property
     def horizon_months(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("horizon_months"))
+    
+    @property
+    def start_month(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("start_month"))
+    
+    @property
+    def end_month(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("end_month"))
     
     @property
     def method(self) -> type_builder.ClassPropertyViewer:

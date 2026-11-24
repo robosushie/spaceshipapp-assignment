@@ -1,12 +1,12 @@
 """Repeat the same calendar month from the previous year."""
 
-from src.agent.forecasting.common import Series, future_months, previous_year
+from src.agent.forecasting.common import Series, previous_year
 
 
-def project(history: Series, horizon: int) -> list[int]:
+def project(history: Series, months: list[str]) -> list[int]:
     observed = {month: quantity for month, quantity in history}
     forecasts: list[int] = []
-    for month in future_months(history, horizon):
+    for month in months:
         quantity = 0
         earlier = month
         for _ in range(3):

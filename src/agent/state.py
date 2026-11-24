@@ -20,6 +20,8 @@ class AgentState(TypedDict, total=False):
     tool: str
     sku: str | None
     horizon_months: int
+    start_month: str | None
+    end_month: str | None
     filters: list[str]
     metrics: list[str]
     dimensions: list[str]

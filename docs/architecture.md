@@ -108,7 +108,7 @@ A question is a short graph. BAML `ChooseTool` picks `query` or `forecast` befor
 2. The guard parses the statement, allows one SELECT on those five tables, then Postgres `EXPLAIN`s it and runs it read-only with a 5 second limit and a 200 row cap.
 3. A bad statement or a plot with no rows goes back to `WriteQuery` with the error, at most twice. A write is refused and is not repaired.
 4. BAML `ExplainRows` writes the paragraph from the rows Postgres returned.
-5. A forecast question skips that SELECT. Python chooses a forecasting method for monthly quantity through 30 Dec 2025 and projects it from January 2026. The recommended units are that total.
+5. A forecast question skips that SELECT. Python fills monthly quantity through 30 Dec 2025, chooses a forecasting method, and projects the months the question asks for. When the question names none, those months start the month after 30 Dec 2025. The recommended units are that total.
 
 If the key is missing or the model call fails, the service returns a problem response and does not guess.
 

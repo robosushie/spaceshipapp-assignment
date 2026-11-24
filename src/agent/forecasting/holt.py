@@ -5,15 +5,15 @@ from src.agent.forecasting.common import Series, quantities, units
 _GRID = [step / 10 for step in range(1, 10)]
 
 
-def project(history: Series, horizon: int) -> list[int]:
+def project(history: Series, months: list[str]) -> list[int]:
     series = quantities(history)
     if not series:
-        return [0] * horizon
+        return [0] * len(months)
     if len(series) == 1:
-        return [series[0]] * horizon
+        return [series[0]] * len(months)
     alpha, beta = _best_weights(series)
     level, trend = _state(series, alpha, beta)
-    return [units(level + step * trend) for step in range(1, horizon + 1)]
+    return [units(level + step * trend) for step in range(1, len(months) + 1)]
 
 
 def _best_weights(series: list[int]) -> tuple[float, float]:
