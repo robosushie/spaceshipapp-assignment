@@ -1,29 +1,8 @@
-from typing import Any, TypedDict
+from typing import NotRequired
+
+from langgraph.graph import MessagesState
 
 
-class AgentState(TypedDict, total=False):
-    question: str
-    schema_ddl: str
-    as_of: str
-    repairs: int
-    sql: str
-    plot_required: bool
-    chart_type: str | None
-    title: str | None
-    x_key: str | None
-    y_keys: list[str]
-    error: str | None
-    refused: bool
-    rows: list[dict[str, str]]
-    answer: str
-    plan: Any
-    tool: str
-    sku: str | None
-    horizon_months: int
-    start_month: str | None
-    end_month: str | None
-    filters: list[str]
-    metrics: list[str]
-    dimensions: list[str]
-    forecast_method: str
-    method: str
+class AgentState(MessagesState):
+    nudge_count: NotRequired[int]
+    steps: NotRequired[int]

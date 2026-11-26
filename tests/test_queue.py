@@ -54,14 +54,19 @@ def test_enqueue_waits_for_the_reply() -> None:
 
 
 def test_run_question_returns_the_graph_answer(monkeypatch: pytest.MonkeyPatch) -> None:
+    from langchain_core.messages import AIMessage, HumanMessage
+
     session = cast(Session, object())
 
     def invoke(state: dict[str, object], config: dict[str, object]) -> dict[str, object]:
-        assert state["question"] == "how many"
+        messages = state["messages"]
+        assert isinstance(messages, list)
+        assert isinstance(messages[0], HumanMessage)
+        assert messages[0].content == "how many"
         configurable = config["configurable"]
         assert isinstance(configurable, dict)
         assert configurable["session"] is session
-        return {"answer": "400 orders", "plot_required": False}
+        return {"messages": [messages[0], AIMessage(content="400 orders")]}
 
     monkeypatch.setattr("src.agent.answer.graph.invoke", invoke)
     response = run_question(session, "how many")
@@ -71,6 +76,8 @@ def test_run_question_returns_the_graph_answer(monkeypatch: pytest.MonkeyPatch) 
 
 
 def test_worker_builds_the_graph_answer(monkeypatch: pytest.MonkeyPatch) -> None:
+    from langchain_core.messages import AIMessage, HumanMessage
+
     class Opened:
         def __enter__(self) -> object:
             return object()
@@ -81,8 +88,11 @@ def test_worker_builds_the_graph_answer(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr("src.agent.worker.Session", lambda _engine: Opened())
 
     def invoke(state: dict[str, object], config: dict[str, object]) -> dict[str, object]:
-        assert state["question"] == "how many"
-        return {"answer": "400 orders", "plot_required": False}
+        messages = state["messages"]
+        assert isinstance(messages, list)
+        assert isinstance(messages[0], HumanMessage)
+        assert messages[0].content == "how many"
+        return {"messages": [messages[0], AIMessage(content="400 orders")]}
 
     monkeypatch.setattr("src.agent.answer.graph.invoke", invoke)
     assert build_reply("how many")["answer"] == "400 orders"

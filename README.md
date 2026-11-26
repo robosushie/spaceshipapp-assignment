@@ -6,7 +6,7 @@ The walkthrough is [docs/using.md](docs/using.md). Design, HTTP, sign-in, and ar
 
 ## Architecture
 
-The desk calls one API. The API reads the book in Postgres. A question waits on Redis until the agent worker runs a LangGraph tool chain: BAML chooses query or forecast, then either writes and runs a checked SELECT or computes a demand forecast in Python, then explains the result. OpenAI names the chat tab, and Resend sends invite and reset mail. Those two are skipped when their keys are empty.
+The desk calls one API. The API reads the book in Postgres. A question waits on Redis until the agent worker runs a ReAct LangGraph loop: ChatAnthropic may call `query_book` and `forecast_demand` multiple times (including both in one answer), then writes the reply from those results. OpenAI names the chat tab, and Resend sends invite and reset mail. Those two are skipped when their keys are empty.
 
 <img src="docs/images/architecture.svg" alt="Desk calls the API, which reads Postgres. Questions go through Redis to the agent and Anthropic. OpenAI and Resend are optional calls from the API." width="920">
 

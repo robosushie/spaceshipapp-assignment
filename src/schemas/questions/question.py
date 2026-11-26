@@ -16,7 +16,7 @@ class QuestionChart(BaseModel):
 
 
 class QuestionExplanation(BaseModel):
-    tool: Literal["query", "forecast"] = "query"
+    tool: Literal["query", "forecast", "mixed"] = "query"
     filters: list[str] = Field(default_factory=list)
     metrics: list[str] = Field(default_factory=list)
     dimensions: list[str] = Field(default_factory=list)
@@ -28,4 +28,6 @@ class QuestionResponse(BaseModel):
     answer: str
     plot_required: bool
     chart: QuestionChart | None = None
+    charts: list[QuestionChart] = Field(default_factory=list)
     explanation: QuestionExplanation = Field(default_factory=QuestionExplanation)
+    explanations: list[QuestionExplanation] = Field(default_factory=list)

@@ -24,6 +24,11 @@ PROMPTS = (
     ("forecast", "Predict demand for SKU X for the next 4 months", False),
     ("forecast", "Predict demand for SKU STICKER-0063 for the next 4 months", True),
     ("forecast", "How much inventory should I plan?", True),
+    (
+        "mixed",
+        "Show delayed orders by week and forecast STICKER-0063 for the next 4 months",
+        True,
+    ),
 )
 
 
@@ -34,6 +39,7 @@ class PromptResult:
     answer: str
     chart_type: str | None
     rows: list[dict[str, str]]
+    chart_count: int
 
 
 def test_spec_prompts_against_the_book() -> None:
@@ -50,6 +56,7 @@ def test_spec_prompts_against_the_book() -> None:
             "tool": item.tool,
             "answer": item.answer,
             "chart_type": item.chart_type,
+            "chart_count": item.chart_count,
             "rows": item.rows,
         }
         for item in results
@@ -59,15 +66,24 @@ def test_spec_prompts_against_the_book() -> None:
 
 def _ask(session: Session, question: str, tool: str, plot: bool) -> PromptResult:
     result = run_question(session, question)
-    assert result.explanation.tool == tool
     assert result.answer.strip()
     assert result.answer != "The question could not be queried."
+    if tool == "mixed":
+        kinds = {item.tool for item in result.explanations}
+        assert "query" in kinds
+        assert "forecast" in kinds
+        assert result.explanation.tool == "mixed"
+        assert len(result.charts) >= 2
+    else:
+        assert result.explanation.tool == tool
     chart_type = None
     rows: list[dict[str, str]] = []
     if plot:
-        assert result.chart is not None
-        chart_type = result.chart.type
-        rows = result.chart.rows
+        assert result.charts or result.chart is not None
+        chart = result.charts[0] if result.charts else result.chart
+        assert chart is not None
+        chart_type = chart.type
+        rows = chart.rows
         assert rows
     elif result.chart is not None:
         chart_type = result.chart.type
@@ -75,4 +91,11 @@ def _ask(session: Session, question: str, tool: str, plot: bool) -> PromptResult
     if tool == "forecast" and result.chart is not None:
         assert result.chart.type == "line"
         assert result.chart.y_keys == ["history", "forecast"]
-    return PromptResult(question, result.explanation.tool, result.answer, chart_type, rows)
+    return PromptResult(
+        question,
+        result.explanation.tool,
+        result.answer,
+        chart_type,
+        rows,
+        len(result.charts),
+    )

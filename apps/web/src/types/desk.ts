@@ -55,7 +55,7 @@ export type QuestionChart = {
 }
 
 export type QuestionExplanation = {
-  tool: "query" | "forecast"
+  tool: "query" | "forecast" | "mixed"
   filters: string[]
   metrics: string[]
   dimensions: string[]
@@ -67,5 +67,7 @@ export type QuestionResult = {
   answer: string
   plot_required: boolean
   chart: QuestionChart | null
+  charts: QuestionChart[]
   explanation: QuestionExplanation
+  explanations: QuestionExplanation[]
 }

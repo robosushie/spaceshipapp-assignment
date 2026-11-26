@@ -8,6 +8,7 @@ dependencies = [
     "baml-py>=0.226.3",
     "fastapi>=0.165.0",
     "httpx>=0.28.1",
+    "langchain-anthropic>=1.7.12",
     "langgraph>=1.2.24",
     "psycopg[binary]>=3.3.9",
     "pwdlib[argon2]>=0.4.2",
@@ -54,7 +55,16 @@ warn_redundant_casts = true
 no_implicit_optional = true
 
 [[tool.mypy.overrides]]
-module = ["baml_py", "baml_py.*", "langgraph.*", "langchain_core.*", "resend", "resend.*"]
+module = [
+    "baml_py",
+    "baml_py.*",
+    "langgraph.*",
+    "langchain_core.*",
+    "langchain_anthropic",
+    "langchain_anthropic.*",
+    "resend",
+    "resend.*",
+]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

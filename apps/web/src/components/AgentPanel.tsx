@@ -225,12 +225,25 @@ export function AgentPanel({
         method: "POST",
         body: JSON.stringify({ question: asked }),
       })
+      const charts =
+        result.charts?.length > 0
+          ? result.charts
+          : result.plot_required && result.chart
+            ? [result.chart]
+            : []
+      const explanations =
+        result.explanations?.length > 0
+          ? result.explanations
+          : result.explanation
+            ? [result.explanation]
+            : []
       appendMessage(threadId, {
         id: crypto.randomUUID(),
         role: "assistant",
         text: result.answer,
-        charts: result.plot_required && result.chart ? [result.chart] : [],
+        charts,
         explanation: result.explanation,
+        explanations,
       })
     } catch (caught) {
       const unavailable = caught instanceof ApiError && caught.status === 503
@@ -320,11 +333,13 @@ export function AgentPanel({
                     <p className="text-muted-foreground">Ask questions about this book</p>
                   </MessageScrollerItem>
                 ) : null}
-                {messages.map((message) => (
+                {messages.map((message, index) => (
                   <MessageScrollerItem
                     key={message.id}
                     messageId={message.id}
-                    scrollAnchor={message.role === "user"}
+                    scrollAnchor={
+                      askingThreadId !== activeThread?.id && index === messages.length - 1
+                    }
                   >
                     <Message align={message.role === "user" ? "end" : "start"}>
                       <MessageContent>
@@ -343,9 +358,12 @@ export function AgentPanel({
                               {chatText(message.text)}
                             </BubbleContent>
                           </Bubble>
-                          {message.explanation ? (
-                            <ExplanationInfo explanation={message.explanation} />
-                          ) : null}
+                          <ExplanationInfo
+                            explanations={
+                              message.explanations ??
+                              (message.explanation ? [message.explanation] : [])
+                            }
+                          />
                         </div>
                         {message.charts.length > 0 ? <PlotDialog charts={message.charts} /> : null}
                       </MessageContent>
@@ -353,7 +371,7 @@ export function AgentPanel({
                   </MessageScrollerItem>
                 ))}
                 {askingThreadId === activeThread?.id ? (
-                  <MessageScrollerItem messageId="pending">
+                  <MessageScrollerItem messageId="pending" scrollAnchor>
                     <Skeleton className="h-24 w-full" />
                   </MessageScrollerItem>
                 ) : null}
@@ -716,13 +734,54 @@ function PlotPlaceholder() {
   )
 }
 
-function ExplanationInfo({ explanation }: { explanation: QuestionExplanation }) {
+function explanationToolLabel(tool: QuestionExplanation["tool"]): string {
+  if (tool === "forecast") {
+    return "Forecast"
+  }
+  if (tool === "mixed") {
+    return "Mixed"
+  }
+  return "Query"
+}
+
+function ExplanationPanel({ explanation }: { explanation: QuestionExplanation }) {
   const labels = [
-    { title: "Tool", values: [explanation.tool === "forecast" ? "Forecast" : "Query"] },
+    { title: "Tool", values: [explanationToolLabel(explanation.tool)] },
     { title: "Filters", values: explanation.filters },
     { title: "Metrics", values: explanation.metrics },
     { title: "Dimensions", values: explanation.dimensions },
   ]
+  return (
+    <div className="flex flex-col gap-3">
+      <dl className="flex flex-col gap-3">
+        {labels.map((item) => (
+          <div key={item.title}>
+            <dt className="text-muted-foreground">{item.title}</dt>
+            <dd className="mt-1">{item.values.length > 0 ? item.values.join(" · ") : "None"}</dd>
+          </div>
+        ))}
+        {explanation.plan ? (
+          <div>
+            <dt className="text-muted-foreground">Plan</dt>
+            <dd className="mt-1 whitespace-pre-wrap break-words font-mono text-xs">{explanation.plan}</dd>
+          </div>
+        ) : null}
+      </dl>
+      {explanation.rows.length > 0 ? (
+        <div className="max-h-48 overflow-auto">
+          <RowsTable rows={explanation.rows} />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function ExplanationInfo({ explanations }: { explanations: QuestionExplanation[] }) {
+  const [tab, setTab] = useState("explain-0")
+  const many = explanations.length > 1
+  if (explanations.length === 0) {
+    return null
+  }
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -741,30 +800,32 @@ function ExplanationInfo({ explanation }: { explanation: QuestionExplanation }) 
         side="bottom"
         className="flex max-h-[min(24rem,70svh)] w-[28rem] max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-y-auto"
       >
-          <p className="font-medium">How this was computed</p>
-          <dl className="flex flex-col gap-3">
-            {labels.map((item) => (
-              <div key={item.title}>
-                <dt className="text-muted-foreground">{item.title}</dt>
-                <dd className="mt-1">
-                  {item.values.length > 0 ? item.values.join(" · ") : "None"}
-                </dd>
-              </div>
+        <p className="font-medium">How this was computed</p>
+        {many ? (
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
+              {explanations.map((explanation, index) => (
+                <TabsTrigger
+                  key={`explain-${index}`}
+                  value={`explain-${index}`}
+                  className="h-7 px-2 text-xs"
+                >
+                  {explanationToolLabel(explanation.tool)}
+                  {explanations.filter((item) => item.tool === explanation.tool).length > 1
+                    ? ` ${index + 1}`
+                    : ""}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {explanations.map((explanation, index) => (
+              <TabsContent key={`explain-panel-${index}`} value={`explain-${index}`}>
+                <ExplanationPanel explanation={explanation} />
+              </TabsContent>
             ))}
-            {explanation.plan ? (
-              <div>
-                <dt className="text-muted-foreground">Plan</dt>
-                <dd className="mt-1 whitespace-pre-wrap break-words font-mono text-xs">
-                  {explanation.plan}
-                </dd>
-              </div>
-            ) : null}
-          </dl>
-          {explanation.rows.length > 0 ? (
-            <div className="max-h-48 overflow-auto">
-              <RowsTable rows={explanation.rows} />
-            </div>
-          ) : null}
+          </Tabs>
+        ) : (
+          <ExplanationPanel explanation={explanations[0]} />
+        )}
       </PopoverContent>
     </Popover>
   )
@@ -801,28 +862,26 @@ function PlotDialog({ charts }: { charts: QuestionChart[] }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState("plot-0")
   const many = charts.length > 1
+  const label = many ? "Open plots" : `Open ${charts[0]?.title ?? "plot"}`
   return (
     <div className="flex w-full max-w-full flex-col gap-2">
-      {charts.map((chart, index) => (
-        <Button
-          key={`${chart.title}-${index}`}
-          type="button"
-          variant="outline"
-          className="group relative h-auto w-full max-w-56 self-start rounded-[1rem] p-2 [&_svg]:!h-16 [&_svg]:!w-full [&_svg]:!max-w-none"
-          onClick={() => {
-            setTab(`plot-${index}`)
-            setOpen(true)
-          }}
-        >
-          <span className="sr-only">Open {chart.title}</span>
-          <PlotPlaceholder />
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
-            <span className="rounded-full bg-foreground px-2 py-0.5 text-xs text-primary-foreground">
-              Click me
-            </span>
+      <Button
+        type="button"
+        variant="outline"
+        className="group relative h-auto w-full max-w-56 self-start rounded-[1rem] p-2 [&_svg]:!h-16 [&_svg]:!w-full [&_svg]:!max-w-none"
+        onClick={() => {
+          setTab("plot-0")
+          setOpen(true)
+        }}
+      >
+        <span className="sr-only">{label}</span>
+        <PlotPlaceholder />
+        <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="rounded-full bg-foreground px-2 py-0.5 text-xs text-primary-foreground">
+            Click me
           </span>
-        </Button>
-      ))}
+        </span>
+      </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[calc(100svh-2rem)] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>

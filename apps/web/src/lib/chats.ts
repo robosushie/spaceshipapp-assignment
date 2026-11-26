@@ -11,6 +11,7 @@ export type ChatMessage = {
   text: string
   charts: QuestionChart[]
   explanation?: QuestionExplanation
+  explanations?: QuestionExplanation[]
 }
 
 export type ChatThread = {
@@ -105,6 +106,7 @@ function parseMessage(value: unknown): ChatMessage | null {
     text?: unknown
     charts?: unknown
     explanation?: unknown
+    explanations?: unknown
   }
   if (typeof record.id !== "string" || typeof record.text !== "string") {
     return null
@@ -114,12 +116,21 @@ function parseMessage(value: unknown): ChatMessage | null {
   }
   const charts = Array.isArray(record.charts) ? record.charts.filter(isChart) : []
   const explanation = parseExplanation(record.explanation)
+  const explanations = Array.isArray(record.explanations)
+    ? record.explanations.flatMap((item) => {
+        const parsed = parseExplanation(item)
+        return parsed ? [parsed] : []
+      })
+    : explanation
+      ? [explanation]
+      : []
   return {
     id: record.id,
     role: record.role,
     text: chatText(record.text),
     charts,
     ...(explanation ? { explanation } : {}),
+    ...(explanations.length > 0 ? { explanations } : {}),
   }
 }
 
@@ -135,7 +146,7 @@ function parseExplanation(value: unknown): QuestionExplanation | undefined {
     plan?: unknown
     rows?: unknown
   }
-  if (record.tool !== "query" && record.tool !== "forecast") {
+  if (record.tool !== "query" && record.tool !== "forecast" && record.tool !== "mixed") {
     return undefined
   }
   if (typeof record.plan !== "string") {
